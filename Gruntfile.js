@@ -7,6 +7,13 @@ module.exports = function(grunt) {
       build: 'bikeshed -q spec ./index.src.html ./build/index.html'
     },
 
+    'gh-pages': {
+      options: {
+        base: 'build'
+      },
+      src: ['index.html']
+    },
+
     watch: {
       files: '*.src.html',
       tasks: ['exec:build']
@@ -15,6 +22,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-exec');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-gh-pages');
 
   grunt.registerTask('default', ['watch']);
 };

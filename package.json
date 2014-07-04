@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "devDependencies": {
     "grunt": "latest",
+    "grunt-exec": "latest",
     "grunt-contrib-watch": "latest",
-    "grunt-exec": "latest"
+    "grunt-gh-pages": "latest"
   }
 }
