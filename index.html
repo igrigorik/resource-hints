@@ -543,7 +543,7 @@ span.issue, span.note {
   <p data-fill-with=logo></p>
   <h1 class="p-name no-ref" id=title>Resource Hints</h1>
   <h2 class="no-num no-toc no-ref heading settled heading" id=subtitle><span class=content>Editor’s Draft,
-    <span class=dt-updated><span class=value-title title=20140704>4 July 2014</span></span></span></h2>
+    <span class=dt-updated><span class=value-title title=20140705>5 July 2014</span></span></span></h2>
   <div data-fill-with=spec-metadata><dl>
 	<dt>This version:
 	<dd><a class=u-url href=https://igrigorik.github.io/resource-hints/>https://igrigorik.github.io/resource-hints/</a>
@@ -555,7 +555,7 @@ span.issue, span.note {
   <p class=copyright data-fill-with=copyright><a href=http://creativecommons.org/publicdomain/zero/1.0/ rel=license><img alt=CC0 src=https://i.creativecommons.org/p/zero/1.0/80x15.png></a>
 To the extent possible under law, the editors have waived all copyright
 and related or neighboring rights to this work.
-In addition, as of 4 July 2014,
+In addition, as of 5 July 2014,
 the editors have made this specification available under the
 <a href=http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0 rel=license>Open Web Foundation Agreement Version 1.0</a>,
 which is available at http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0.
@@ -654,6 +654,45 @@ Many sites rely on redirects for analytics and to anonymize the referrer before 
 
 
 <h3 class="heading settled heading" data-level=2.2 id=preload><span class=secno>2.2 </span><span class=content>Preload</span><a class=self-link href=#preload></a></h3>
+
+<p>The <code>preload</code> hint is used to indicate the URL and content-type of a resource that should be fetched as early as possible by the user agent. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.</p>
+
+<pre class=prod>&lt;link rel="preload" href="//example.com/font.woff" type="font/woff"&gt;
+&lt;link rel="preload" href="//example.com/logo.webp" type="image/webp"&gt;
+&lt;link rel="preload" href="//example.com/app.js" type="text/javascript"&gt;
+</pre>
+
+<p>The <code>type</code> attribute specifies the content-type of the resource such that the user agent can set and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource of the same content-type. If the content-type is missing, the browser should assign a default low priority to the specified resource.</p>
+
+<div class=example>
+Speculative parsers do not execute JavaScript and perform a shallow parse of CSS, which means that the fetch of any critical resource specified within JavaScript and CSS is delayed until the document parser is able to process the resource declaration. By using a <code>preload</code> hint the application can declaratively specify which resources the user agent should fetch early to mask the request latency and improve page performance.
+</div>
+
+<div class=example>
+The <code>preload</code> hint can be generated both by the application and an optimization proxy (e.g. a CDN) to accelerate fetch and delivery of critical resources.
+
+<ol>
+  <li>The application can specify <code>preload</code> hints, allowing:
+    <ul>
+      <li>The optimization proxy to initiate early fetch of the associated resources and place them into its cache, thus reducing or eliminating the latency of retrieving resources from the origin.
+      <li>The user agent to initiate early fetch of critical resources - see example above.
+    </ul>
+
+  <li>The optimization proxy can specify <code>preload</code> hints on behalf of the application:
+    <ul>
+      <li>The proxy can observe and infer critical resources based on past request patterns, allowing it to automate generation of relevant <code>preload</code> hints to improve performance.
+      <li>The proxy can deliver inferred <code>preload</code> hints to the user agent while it is blocked on the response from the origin, allowing the user agent to begin fetching critical resources.
+    </ul>
+
+    <div class=note>
+      Many optimization proxies already implement the "early flush" strategy where references to critical resources are delivered to the user agent while the proxy is blocked on the response from the origin. Today, this is typically done by synthesizing a document <code>&lt;head&gt;</code> that contains XHR, image, and object requests. However, in practice, these implementations often result in prioritization conflicts with requests initiated by speculative and document parsers, or worse, result in delayed or double downloads due to missing content-type information.
+
+<p>The <code>preload</code> hint addresses these problems by providing a declarative hint that communicates both the URL and the content-type of the resource.</p>
+    </div>
+</ol>
+</div>
+
+
 <h3 class="heading settled heading" data-level=2.3 id=prefetch0><span class=secno>2.3 </span><span class=content>Prefetch</span><a class=self-link href=#prefetch0></a></h3>
 <h3 class="heading settled heading" data-level=2.4 id=prefetch><span class=secno>2.4 </span><span class=content>Prerender</span><a class=self-link href=#prefetch></a></h3>
 
