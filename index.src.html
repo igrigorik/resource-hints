@@ -49,7 +49,7 @@ The <code>preconnect</code> hint is used to indicate an origin that will be used
   &lt;link rel="preconnect" href="//cdn.example.com"&gt;
 </pre>
 
-The optimal number of connections per origin is dependent on the negotiated protocol, users current connectivity profile, available device resources, and other context-specific variables. As a result, this decision is deferred to the user agent, which is in the best position to determine the optimal number.
+The optimal number of connections per origin is dependent on the negotiated protocol, users current connectivity profile, available device resources, and other context specific variables. As a result, this decision is deferred to the user agent, which is in the best position to determine the optimal number.
 
 <div class="note">
 Many existing user agents implement <code>dns-prefetch</code> that only performs the DNS lookup. However, there are no circumstances where a standalone DNS lookup is useful unless you also intend to connect to the specified origin, and further, the bulk of the latency cost remains in the TCP and TLS handshakes.
@@ -110,17 +110,51 @@ The <code>preload</code> hint can be generated both by the application and an op
 
 
 <h3 id='prefetch'>Prefetch</h3>
+
+The <code>prefetch</code> hint is used to indicate the URL and content-type of a resource that is likely to be a critical resource when the next action or navigation is triggered. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.
+
+<pre class="prod">
+  &lt;link rel="prefetch" href="//example.com/thankyou.html" type="text/html"&gt;
+  &lt;link rel="prefetch" href="//example.com/thankyou.webp" type="image/webp"&gt;
+</pre>
+
+A specified <code>prefetch</code> resource is not critical to the current page and should be fetched in a manner that will not affect the performance of the current page.
+
+<ul>
+  <li>The priority of <code>prefetch</code> requests should be lower than that of resources required by the current page.
+    <ul>
+      <li>The <code>type</code> attribute specifies the content-type of the resource such that the user agent can set and communicate the right priority value relative to other <code>prefetch</code> resources. If the content-type is missing, the user agent should assign a default low priority to the specified resource.
+    </ul>
+  <li>The optimal time to initiate the resource fetch is dependent on the negotiated protocol, users current connectivity profile, available device resources, and other context specific variables. As a result, this decision is deferred to the user agent, which is in the best position to determine the optimal time - e.g. the user agent may decide to wait until all other downloads are finished, or choose to pipeline requests with low priority if the negotiated protocol supports the necessary primitives.
+</ul>
+
+The user agent should not cancel outstanding <code>prefetch</code> requests when a new navigation is triggered as they may be required by the next page. However, the user agent may cancel these requests once it determines that they are not critical resources for the new destination.
+
+<div class="example">
+The <code>prefetch</code> hint can be used to implement a prefetch strategy that leverages app-specific knowledge about the next navigation.
+
+For example, an image gallery may have knowledge about the likelihood of next photo or page that may be requested by the user. To provide an improved experience the application can ask the user-agent to begin fetching the critical assets before the next navigation is triggered.
+
+Alternatively, instead of anticipating user activity, the application can react to user input and dynamically schedule prefetch requests based on its knowledge of the critical resources that will be required by the next navigation target - i.e. the application may capture a click event and provide <code>prefetch</code> hints to the user agent before the current page is unloaded.
+</div>
+
+
+
 <h3 id='prefetch'>Prerender</h3>
 
 
 <h2 id='processing'>Processing model</h2>
-
 <h3 id='best-effort'>Best-effort processing</h3>
 
 Resource hints may be automatically downgraded by the user agent due to resource constraints or other reasons - e.g. instead of completing the full preload the user agent may opt out to only perform a preconnect for the hostname of the critical resource.
 
 <h3 id='dynamic'>Dynamic scheduling</h3>
+<h3 id='caching'>Caching</h3>
+UA should define cache behavior of prefetched resources.
+If the fetched resource (e.g. HTML doc) is marked as no-cache, how long can it be used for until its evicted?
+
 <h3 id='http-link'>Interoperability with HTTP Link header</h3>
+
 
 
 https://docs.google.com/document/d/1HeTVglnZHD_mGSaID1gUZPqLAa1lXWObV-Zkx6q_HF4/edit#
