@@ -9,7 +9,7 @@ Editor: Ilya Grigorik, Google Inc., ilya@igvita.com
 Abstract: This specification defines <code>preconnect</code>, <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the browser in the decision process of which origins it should connect to, identification of critical resources, and which resources or pages may be required in the future.
 </pre>
 
-<h2 id='intro'>Introduction</h2>
+<h2 id="intro">Introduction</h2>
 
 Modern browsers leverage a wide variety of speculative optimization techniques to anticipate user input and intent, which allows them to hide some of the networking, processing, and rendering latencies: preconnects, early fetching of critical resources, prefetching of resources for subsequent navigation, and full page prerendering.
 
@@ -28,7 +28,7 @@ Many web applications already leverage a variety prefetching techniques, such as
 This specification defines <code>preconnect</code>, <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the browser in the decision process of which origins it should connect to, identification of critical resources, and which resources or pages may be required in the future.
 
 
-<h2 id='resource-hints'>Resource Hints</h2>
+<h2 id="resource-hints">Resource Hints</h2>
 
 Resource hints are advisory and are used to assist the user agent in the decision making process of which optimizations can be applied when the page is being loaded, or as the user is interacting with the application.
 
@@ -40,11 +40,11 @@ Resource hints are advisory and are used to assist the user agent in the decisio
 </ul>
 
 
-<h3 id='preconnect'>Preconnect</h3>
+<h3 id="preconnect">Preconnect</h3>
 
 The <code>preconnect</code> hint is used to indicate an origin that will be used to fetch required resources. Initiating an early connection, which includes the DNS lookup, TCP handshake, and optional TLS negotiation, allows the user agent to mask the high costs of connection establishment latency.
 
-<pre class="prod">
+<pre>
   &lt;link rel="preconnect" href="//example.com"&gt;
   &lt;link rel="preconnect" href="//cdn.example.com"&gt;
 </pre>
@@ -57,22 +57,22 @@ Many existing user agents implement <code>dns-prefetch</code> that only performs
 As a result, existing <code>dns-prefetch</code> hints can be treated as <code>preconnect</code> hints. The user agent may choose to perform a partial handshake (DNS only for HTTP, or DNS+TCP for HTTPS origins) based on implemented heuristics, but it should attempt to complete the full connection handshake (DNS+TCP for HTTP, and DNS+TCP+TLS for HTTPS origins) whenever possible to deliver the best results.
 </div>
 
-<div class='example'>
+<div class="example">
 The exact URL of a critical resource may not be known until the page is being constructed by the user agent - e.g. conditional loading logic, UA adaptation, etc. However, the origin from which one or more of these resources will be fetched is often known ahead of time by the developer or the server generating the response. In such cases, a <code>preconnect</code> hint can be used to initiate an early connection handshake such that when the resource URL is determined, the user agent can immediately dispatch the request without first blocking on connection negotiation.
 </div>
 
-<div class='example'>
+<div class="example">
 Many sites rely on redirects for analytics and to anonymize the referrer before sending the user to the final destination. Because the destination is known ahead of time, a preconnect hint can be used to initiate the connection handshake with the destination origin in parallel with the processing of the redirect.
 
 Note that this behavior requires ability to dynamically inject a preconnect hint (e.g. as part of a JavaScript handler), and for the preconnect processing to proceed across page navigations.
 </div>
 
 
-<h3 id='preload'>Preload</h3>
+<h3 id="preload">Preload</h3>
 
 The <code>preload</code> hint is used to indicate the URL and content-type of a resource that should be fetched as early as possible by the user agent. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.
 
-<pre class="prod">
+<pre>
   &lt;link rel="preload" href="//example.com/font.woff" type="font/woff"&gt;
   &lt;link rel="preload" href="//example.com/logo.webp" type="image/webp"&gt;
   &lt;link rel="preload" href="//example.com/app.js" type="text/javascript"&gt;
@@ -109,11 +109,11 @@ The <code>preload</code> hint can be generated both by the application and an op
 </div>
 
 
-<h3 id='prefetch'>Prefetch</h3>
+<h3 id="prefetch">Prefetch</h3>
 
 The <code>prefetch</code> hint is used to indicate the URL and content-type of a resource that is likely to be a critical resource when the next action or navigation is triggered. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.
 
-<pre class="prod">
+<pre>
   &lt;link rel="prefetch" href="//example.com/thankyou.html" type="text/html"&gt;
   &lt;link rel="prefetch" href="//example.com/thankyou.webp" type="image/webp"&gt;
 </pre>
@@ -139,11 +139,11 @@ Alternatively, instead of anticipating user activity, the application can react 
 </div>
 
 
-<h3 id='prerender'>Prerender</h3>
+<h3 id="prerender">Prerender</h3>
 
 The <code>prerender</code> hint is used to indicate the URL of the next navigation target. Initiating a prerender allows the user agent to deliver an instant navigation experience: the user agent downloads the top-level resource and its assets, and performs all of the processing steps required to show the page without actually showing it to the user. Then, once the navigation is triggered, the prerendered content is seamlessly swapped in place of the current page.
 
-<pre class="prod">
+<pre>
   &lt;link rel="prerender" href="//example.com/article/part2.html"&gt;
 </pre>
 
@@ -179,20 +179,20 @@ Note: The above examples are not an exhaustive list. The decision which strategi
 To ensure compatibility and improve success rate of prerender requests the target page should use the [[PAGE-VISIBILITY]] to determine the visibility state of the page as it is being rendered and implement appropriate logic to avoid actions that may cause the prerender to be abandoned (e.g. non-idempotent requests), or unwanted side-effects from being triggered (e.g. analytics beacons firing prior to the page being displayed).
 
 
-<h2 id='processing'>Processing model</h2>
-<h3 id='best-effort'>Best-effort processing</h3>
+<h2 id="processing">Processing model</h2>
+<h3 id="best-effort">Best-effort processing</h3>
 
 Resource hints may be automatically downgraded by the user agent due to resource constraints or other reasons - e.g. instead of completing the full preload the user agent may opt out to only perform a preconnect for the hostname of the critical resource.
 
 Incognito, privacy.
 
 
-<h3 id='dynamic'>Dynamic scheduling</h3>
-<h3 id='caching'>Caching</h3>
+<h3 id="dynamic">Dynamic scheduling</h3>
+<h3 id="caching">Caching</h3>
 UA should define cache behavior of prefetched resources.
 If the fetched resource (e.g. HTML doc) is marked as no-cache, how long can it be used for until its evicted?
 
-<h3 id='http-link'>Interoperability with HTTP Link header</h3>
+<h3 id="http-link">Interoperability with HTTP Link header</h3>
 
 
 
