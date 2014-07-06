@@ -118,7 +118,7 @@ The <code>prefetch</code> hint is used to indicate the URL and content-type of a
   &lt;link rel="prefetch" href="//example.com/thankyou.webp" type="image/webp"&gt;
 </pre>
 
-A specified <code>prefetch</code> resource is not critical to the current page and should be fetched in a manner that will not affect the performance of the current page.
+Specified <code>prefetch</code> resources should not negatively impact the performance of the current page:
 
 <ul>
   <li>The priority of <code>prefetch</code> requests should be lower than that of resources required by the current page.
@@ -139,14 +139,53 @@ Alternatively, instead of anticipating user activity, the application can react 
 </div>
 
 
+<h3 id='prerender'>Prerender</h3>
 
-<h3 id='prefetch'>Prerender</h3>
+The <code>prerender</code> hint is used to indicate the URL of the next navigation target. Initiating a prerender allows the user agent to deliver an instant navigation experience: the user agent downloads the top-level resource and its assets, and performs all of the processing steps required to show the page without actually showing it to the user. Then, once the navigation is triggered, the prerendered content is seamlessly swapped in place of the current page.
+
+<pre class="prod">
+  &lt;link rel="prerender" href="//example.com/article/part2.html"&gt;
+</pre>
+
+<div class="example">
+The <code>prerender</code> hint can be used by the application to signal high-likelihood navigation targets based on content, structure, analytics, or other signals - e.g. high-likelihood search results, paginated content or step-driven flows, aggregated analytics or per-user behavior, and so on.
+</div>
+
+Specified <code>prerender</code> target should not negatively impact the performance of the current page. Due to the need to download, parse, and execute the target resource and its assets, prerendering may result in high contention for CPU, GPU, memory, and network resources. As a result, the user agent may implement various strategies to minimize resource contention and impose limits on the type and properties of the content that is being prerendered:
+
+<ul>
+  <li>To minimize resource contention the prerendered content may be processed with lower priority.
+    <ul>
+      <li>The background render may be allocated fewer CPU, GPU, or memory resources.
+      <li>The priority of all <code>prerender</code> requests should be lower than that of resources required by the current page and the optimal time to initiate these requests is deferred to the user-agent.
+      <li>Some resource requests may be delayed until the prerendered page is made visible - e.g. media downloads, plugin content, and so on.
+    </ul>
+
+  <li>Prerender may be abandoned due to resource constraints.
+    <ul>
+      <li>Limited available resources may prevent prerender from being initiated.
+      <li>High resource requirements of the content being prerendered may lead the user agent to cancel the prerender - e.g. exceeded memory requirements, high CPU usage, and so on.
+    </ul>
+
+  <li>Prerender may be abandoned based on the type or properties of the prerendered content.
+    <ul>
+      <li>If the target exhibits non-idempotent behavior: mutations to shared local storage, XMLHttpRequest with a verb other than GET, HEAD, or OPTION, and so on.
+      <li>If the target triggers a condition that requires user input: confirmation dialogs, authentication prompts, alerts, and so on.
+    </ul>
+</ul>
+
+Note: The above examples are not an exhaustive list. The decision which strategies to implement and how to enforce them is deferred to the user agent. For a hands-on example, see <a href="http://www.chromium.org/developers/design-documents/prerender">Chromium prerendering</a> wiki page.
+
+To ensure compatibility and improve success rate of prerender requests the target page should use the [[PAGE-VISIBILITY]] to determine the visibility state of the page as it is being rendered and implement appropriate logic to avoid actions that may cause the prerender to be abandoned (e.g. non-idempotent requests), or unwanted side-effects from being triggered (e.g. analytics beacons firing prior to the page being displayed).
 
 
 <h2 id='processing'>Processing model</h2>
 <h3 id='best-effort'>Best-effort processing</h3>
 
 Resource hints may be automatically downgraded by the user agent due to resource constraints or other reasons - e.g. instead of completing the full preload the user agent may opt out to only perform a preconnect for the hostname of the critical resource.
+
+Incognito, privacy.
+
 
 <h3 id='dynamic'>Dynamic scheduling</h3>
 <h3 id='caching'>Caching</h3>
@@ -159,3 +198,4 @@ If the fetched resource (e.g. HTML doc) is marked as no-cache, how long can it b
 
 https://docs.google.com/document/d/1HeTVglnZHD_mGSaID1gUZPqLAa1lXWObV-Zkx6q_HF4/edit#
 http://tools.ietf.org/html/draft-nottingham-http-link-header-10
+
