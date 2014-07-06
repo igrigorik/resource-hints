@@ -543,7 +543,7 @@ span.issue, span.note {
   <p data-fill-with=logo></p>
   <h1 class="p-name no-ref" id=title>Resource Hints</h1>
   <h2 class="no-num no-toc no-ref heading settled heading" id=subtitle><span class=content>Editor’s Draft,
-    <span class=dt-updated><span class=value-title title=20140705>5 July 2014</span></span></span></h2>
+    <span class=dt-updated><span class=value-title title=20140706>6 July 2014</span></span></span></h2>
   <div data-fill-with=spec-metadata><dl>
 	<dt>This version:
 	<dd><a class=u-url href=https://igrigorik.github.io/resource-hints/>https://igrigorik.github.io/resource-hints/</a>
@@ -555,7 +555,7 @@ span.issue, span.note {
   <p class=copyright data-fill-with=copyright><a href=http://creativecommons.org/publicdomain/zero/1.0/ rel=license><img alt=CC0 src=https://i.creativecommons.org/p/zero/1.0/80x15.png></a>
 To the extent possible under law, the editors have waived all copyright
 and related or neighboring rights to this work.
-In addition, as of 5 July 2014,
+In addition, as of 6 July 2014,
 the editors have made this specification available under the
 <a href=http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0 rel=license>Open Web Foundation Agreement Version 1.0</a>,
 which is available at http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0.
@@ -577,13 +577,14 @@ Parts of this work may be from another specification document.  If so, those par
 		<ul class=toc>
 		<li><a href=#preconnect><span class=secno>2.1</span> Preconnect</a>
 		<li><a href=#preload><span class=secno>2.2</span> Preload</a>
-		<li><a href=#prefetch0><span class=secno>2.3</span> Prefetch</a>
-		<li><a href=#prefetch><span class=secno>2.4</span> Prerender</a></ul>
+		<li><a href=#prefetch><span class=secno>2.3</span> Prefetch</a>
+		<li><a href=#prerender><span class=secno>2.4</span> Prerender</a></ul>
 	<li><a href=#processing><span class=secno>3</span> Processing model</a>
 		<ul class=toc>
 		<li><a href=#best-effort><span class=secno>3.1</span> Best-effort processing</a>
 		<li><a href=#dynamic><span class=secno>3.2</span> Dynamic scheduling</a>
-		<li><a href=#http-link><span class=secno>3.3</span> Interoperability with HTTP Link header</a></ul>
+		<li><a href=#caching><span class=secno>3.3</span> Caching</a>
+		<li><a href=#http-link><span class=secno>3.4</span> Interoperability with HTTP Link header</a></ul>
 	<li><a href=#conformance><span class=secno></span>  Conformance</a>
 	<li><a href=#references><span class=secno></span>  References</a>
 		<ul class=toc>
@@ -630,11 +631,11 @@ Parts of this work may be from another specification document.  If so, those par
 
 <p>The <code>preconnect</code> hint is used to indicate an origin that will be used to fetch required resources. Initiating an early connection, which includes the DNS lookup, TCP handshake, and optional TLS negotiation, allows the user agent to mask the high costs of connection establishment latency.</p>
 
-<pre class=prod>&lt;link rel="preconnect" href="//example.com"&gt;
+<pre>&lt;link rel="preconnect" href="//example.com"&gt;
 &lt;link rel="preconnect" href="//cdn.example.com"&gt;
 </pre>
 
-<p>The optimal number of connections per origin is dependent on the negotiated protocol, users current connectivity profile, available device resources, and other context-specific variables. As a result, this decision is deferred to the user agent, which is in the best position to determine the optimal number.</p>
+<p>The optimal number of connections per origin is dependent on the negotiated protocol, users current connectivity profile, available device resources, and other context specific variables. As a result, this decision is deferred to the user agent, which is in the best position to determine the optimal number.</p>
 
 <div class=note>
 Many existing user agents implement <code>dns-prefetch</code> that only performs the DNS lookup. However, there are no circumstances where a standalone DNS lookup is useful unless you also intend to connect to the specified origin, and further, the bulk of the latency cost remains in the TCP and TLS handshakes.
@@ -657,7 +658,7 @@ Many sites rely on redirects for analytics and to anonymize the referrer before 
 
 <p>The <code>preload</code> hint is used to indicate the URL and content-type of a resource that should be fetched as early as possible by the user agent. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.</p>
 
-<pre class=prod>&lt;link rel="preload" href="//example.com/font.woff" type="font/woff"&gt;
+<pre>&lt;link rel="preload" href="//example.com/font.woff" type="font/woff"&gt;
 &lt;link rel="preload" href="//example.com/logo.webp" type="image/webp"&gt;
 &lt;link rel="preload" href="//example.com/app.js" type="text/javascript"&gt;
 </pre>
@@ -693,22 +694,94 @@ The <code>preload</code> hint can be generated both by the application and an op
 </div>
 
 
-<h3 class="heading settled heading" data-level=2.3 id=prefetch0><span class=secno>2.3 </span><span class=content>Prefetch</span><a class=self-link href=#prefetch0></a></h3>
-<h3 class="heading settled heading" data-level=2.4 id=prefetch><span class=secno>2.4 </span><span class=content>Prerender</span><a class=self-link href=#prefetch></a></h3>
+<h3 class="heading settled heading" data-level=2.3 id=prefetch><span class=secno>2.3 </span><span class=content>Prefetch</span><a class=self-link href=#prefetch></a></h3>
+
+<p>The <code>prefetch</code> hint is used to indicate the URL and content-type of a resource that is likely to be a critical resource when the next action or navigation is triggered. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.</p>
+
+<pre>&lt;link rel="prefetch" href="//example.com/thankyou.html" type="text/html"&gt;
+&lt;link rel="prefetch" href="//example.com/thankyou.webp" type="image/webp"&gt;
+</pre>
+
+<p>Specified <code>prefetch</code> resources should not negatively impact the performance of the current page:</p>
+
+<ul>
+  <li>The priority of <code>prefetch</code> requests should be lower than that of resources required by the current page.
+    <ul>
+      <li>The <code>type</code> attribute specifies the content-type of the resource such that the user agent can set and communicate the right priority value relative to other <code>prefetch</code> resources. If the content-type is missing, the user agent should assign a default low priority to the specified resource.
+    </ul>
+  <li>The optimal time to initiate the resource fetch is dependent on the negotiated protocol, users current connectivity profile, available device resources, and other context specific variables. As a result, this decision is deferred to the user agent, which is in the best position to determine the optimal time - e.g. the user agent may decide to wait until all other downloads are finished, or choose to pipeline requests with low priority if the negotiated protocol supports the necessary primitives.
+</ul>
+
+<p>The user agent should not cancel outstanding <code>prefetch</code> requests when a new navigation is triggered as they may be required by the next page. However, the user agent may cancel these requests once it determines that they are not critical resources for the new destination.</p>
+
+<div class=example>
+The <code>prefetch</code> hint can be used to implement a prefetch strategy that leverages app-specific knowledge about the next navigation.
+
+<p>For example, an image gallery may have knowledge about the likelihood of next photo or page that may be requested by the user. To provide an improved experience the application can ask the user-agent to begin fetching the critical assets before the next navigation is triggered.</p>
+
+<p>Alternatively, instead of anticipating user activity, the application can react to user input and dynamically schedule prefetch requests based on its knowledge of the critical resources that will be required by the next navigation target - i.e. the application may capture a click event and provide <code>prefetch</code> hints to the user agent before the current page is unloaded.
+</div><p></p>
+
+
+<h3 class="heading settled heading" data-level=2.4 id=prerender><span class=secno>2.4 </span><span class=content>Prerender</span><a class=self-link href=#prerender></a></h3>
+
+<p>The <code>prerender</code> hint is used to indicate the URL of the next navigation target. Initiating a prerender allows the user agent to deliver an instant navigation experience: the user agent downloads the top-level resource and its assets, and performs all of the processing steps required to show the page without actually showing it to the user. Then, once the navigation is triggered, the prerendered content is seamlessly swapped in place of the current page.</p>
+
+<pre>&lt;link rel="prerender" href="//example.com/article/part2.html"&gt;
+</pre>
+
+<div class=example>
+The <code>prerender</code> hint can be used by the application to signal high-likelihood navigation targets based on content, structure, analytics, or other signals - e.g. high-likelihood search results, paginated content or step-driven flows, aggregated analytics or per-user behavior, and so on.
+</div>
+
+<p>Specified <code>prerender</code> target should not negatively impact the performance of the current page. Due to the need to download, parse, and execute the target resource and its assets, prerendering may result in high contention for CPU, GPU, memory, and network resources. As a result, the user agent may implement various strategies to minimize resource contention and impose limits on the type and properties of the content that is being prerendered:</p>
+
+<ul>
+  <li>To minimize resource contention the prerendered content may be processed with lower priority.
+    <ul>
+      <li>The background render may be allocated fewer CPU, GPU, or memory resources.
+      <li>The priority of all <code>prerender</code> requests should be lower than that of resources required by the current page and the optimal time to initiate these requests is deferred to the user-agent.
+      <li>Some resource requests may be delayed until the prerendered page is made visible - e.g. media downloads, plugin content, and so on.
+    </ul>
+
+  <li>Prerender may be abandoned due to resource constraints.
+    <ul>
+      <li>Limited available resources may prevent prerender from being initiated.
+      <li>High resource requirements of the content being prerendered may lead the user agent to cancel the prerender - e.g. exceeded memory requirements, high CPU usage, and so on.
+    </ul>
+
+  <li>Prerender may be abandoned based on the type or properties of the prerendered content.
+    <ul>
+      <li>If the target exhibits non-idempotent behavior: mutations to shared local storage, XMLHttpRequest with a verb other than GET, HEAD, or OPTION, and so on.
+      <li>If the target triggers a condition that requires user input: confirmation dialogs, authentication prompts, alerts, and so on.
+    </ul>
+</ul>
+
+<p class=note>Note: The above examples are not an exhaustive list. The decision which strategies to implement and how to enforce them is deferred to the user agent. For a hands-on example, see <a href=http://www.chromium.org/developers/design-documents/prerender>Chromium prerendering</a> wiki page.</p>
+
+<p>To ensure compatibility and improve success rate of prerender requests the target page should use the <a data-biblio-type=informative data-link-type=biblio href=#biblio-page-visibility title=biblio-page-visibility>[PAGE-VISIBILITY]</a> to determine the visibility state of the page as it is being rendered and implement appropriate logic to avoid actions that may cause the prerender to be abandoned (e.g. non-idempotent requests), or unwanted side-effects from being triggered (e.g. analytics beacons firing prior to the page being displayed).</p>
 
 
 <h2 class="heading settled heading" data-level=3 id=processing><span class=secno>3 </span><span class=content>Processing model</span><a class=self-link href=#processing></a></h2>
-
 <h3 class="heading settled heading" data-level=3.1 id=best-effort><span class=secno>3.1 </span><span class=content>Best-effort processing</span><a class=self-link href=#best-effort></a></h3>
 
 <p>Resource hints may be automatically downgraded by the user agent due to resource constraints or other reasons - e.g. instead of completing the full preload the user agent may opt out to only perform a preconnect for the hostname of the critical resource.</p>
 
+<p>Incognito, privacy.</p>
+
+
 <h3 class="heading settled heading" data-level=3.2 id=dynamic><span class=secno>3.2 </span><span class=content>Dynamic scheduling</span><a class=self-link href=#dynamic></a></h3>
-<h3 class="heading settled heading" data-level=3.3 id=http-link><span class=secno>3.3 </span><span class=content>Interoperability with HTTP Link header</span><a class=self-link href=#http-link></a></h3>
+<h3 class="heading settled heading" data-level=3.3 id=caching><span class=secno>3.3 </span><span class=content>Caching</span><a class=self-link href=#caching></a></h3>
+UA should define cache behavior of prefetched resources.
+If the fetched resource (e.g. HTML doc) is marked as no-cache, how long can it be used for until its evicted?
+
+<h3 class="heading settled heading" data-level=3.4 id=http-link><span class=secno>3.4 </span><span class=content>Interoperability with HTTP Link header</span><a class=self-link href=#http-link></a></h3>
+
 
 
 <p>https://docs.google.com/document/d/1HeTVglnZHD_mGSaID1gUZPqLAa1lXWObV-Zkx6q_HF4/edit#
 http://tools.ietf.org/html/draft-nottingham-http-link-header-10</p>
+
 
 <h2 class="no-ref no-num heading settled heading" id=conformance><span class=content>
 Conformance</span><a class=self-link href=#conformance></a></h2>
@@ -752,6 +825,7 @@ Normative References</span><a class=self-link href=#normative></a></h3>
 <h3 class="no-num no-ref heading settled heading" id=informative><span class=content>
 Informative References</span><a class=self-link href=#informative></a></h3>
 <div data-fill-with=informative-references><dl>
+<dt id=biblio-page-visibility title=PAGE-VISIBILITY><a class=self-link href=#biblio-page-visibility></a>[PAGE-VISIBILITY]<dd>Jatinder Mann; Arvind Jain. <a href=http://www.w3.org/TR/2013/REC-page-visibility-20130514/>Page Visibility</a>. 14 May 2013. W3C Recommendation. URL: <a href=http://www.w3.org/TR/2013/REC-page-visibility-20130514/>http://www.w3.org/TR/2013/REC-page-visibility-20130514/</a></dd>
 </dl></div>
 
 <h2 class="no-num no-ref heading settled heading" id=index><span class=content>
