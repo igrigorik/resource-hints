@@ -5,7 +5,7 @@ Level: 1
 Status: ED
 Group: webperf
 ED: https://igrigorik.github.io/resource-hints/
-Editor: Ilya Grigorik, Google Inc., ilya@igvita.com
+Editor: Ilya Grigorik, Google Inc., https://www.igvita.com/
 Abstract: This specification defines <code>preconnect</code>, <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the user agent in the decision process of which origins it should connect to, identification of critical resources, and which resources or pages may be required in the future.
 </pre>
 
@@ -180,7 +180,7 @@ To ensure compatibility and improve success rate of prerender requests the targe
 
 
 <h2 id="processing">Processing model</h2>
-<h3 id="best-effort">Best-effort processing</h3>
+<h3 id="best-effort-processing">Best-effort processing</h3>
 
 The presence of a resource hint does not guarantee that the user agent will execute the specified optimization. The decision to invoke the optimization is deferred to the user agent based on page, user, and system contexts.
 
@@ -199,7 +199,7 @@ The presence of a resource hint does not guarantee that the user agent will exec
 Note: <code>preload</code> and <code>prefetch</code> hints serve as implicit <code>preconnect</code> hints since a connection is required to fetch the resource; a <code>prerender</code> hint serves as an implicit <code>prefetch</code> hint, and so on. Performing a partial optimization allows the user agent to improve performance even if a full optimization cannot be performed.
 
 
-<h3 id="dynamic">Dynamic scheduling</h3>
+<h3 id="dynamic-scheduling">Dynamic scheduling</h3>
 
 In addition to the hints specified in the document markup, the application may have runtime resource hints based on user context or other signals. The user agent should process dynamically inserted resource hints in addition to and in the same way as document specified hints.
 
@@ -240,7 +240,7 @@ Delivering resource hints via <code>Link</code> header allows automated optimiza
 </div>
 
 
-<h3 id="caching">Caching grace period</h3>
+<h3 id="caching-grace-period">Caching grace period</h3>
 
 Resources fetched via <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> are subject to regular HTTP caching and processing rules. However, special handling of some caching directives (e.g. <code>no-cache</code>, <code>no-store</code>, <code>max-age=0</code>) is required to avoid double downloads and unnecessary revalidation requests.
 
