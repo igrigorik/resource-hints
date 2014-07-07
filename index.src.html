@@ -6,7 +6,7 @@ Status: ED
 Group: webperf
 ED: https://igrigorik.github.io/resource-hints/
 Editor: Ilya Grigorik, Google Inc., ilya@igvita.com
-Abstract: This specification defines <code>preconnect</code>, <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the browser in the decision process of which origins it should connect to, identification of critical resources, and which resources or pages may be required in the future.
+Abstract: This specification defines <code>preconnect</code>, <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the user agent in the decision process of which origins it should connect to, identification of critical resources, and which resources or pages may be required in the future.
 </pre>
 
 <h2 id="intro">Introduction</h2>
@@ -15,7 +15,7 @@ Modern browsers leverage a wide variety of speculative optimization techniques t
 
 The decision to initiate one or more of the above optimization is typically based on heuristic rules based on document markup and structure, navigation history, and context of the user - e.g. type of device, available compute, memory, and network connectivity, user preferences, and so on. These techniques have proven to be successful, but can be further improved by leveraging the application and page specific knowledge of the developer or the servers responsible for generation and delivery of these resources.
 
-For example, the application may provide the following resource hints to the browser:
+For example, the application may provide the following resource hints to the user agent:
 
 <ul>
   <li>The list of origins from which critical resources will be fetched.
@@ -25,7 +25,7 @@ For example, the application may provide the following resource hints to the bro
 
 Many web applications already leverage a variety prefetching techniques, such as using <code>XMLHttpRequest</code> to prefetch and cache assets before they are needed. However, these implementations are app-specific, are not interoperable with the browser-provided primitives, and do not provide the same level of performance, or worse, conflict and result in delayed or unnecessary downloads that degrade overall page performance.
 
-This specification defines <code>preconnect</code>, <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the browser in the decision process of which origins it should connect to, identification of critical resources, and which resources or pages may be required in the future.
+This specification defines <code>preconnect</code>, <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the user agent in the decision process of which origins it should connect to, identification of critical resources, and which resources or pages may be required in the future.
 
 
 <h2 id="resource-hints">Resource Hints</h2>
@@ -78,7 +78,7 @@ The <code>preload</code> hint is used to indicate the URL and content-type of a 
   &lt;link rel="preload" href="//example.com/app.js" type="text/javascript"&gt;
 </pre>
 
-The <code>type</code> attribute specifies the content-type of the resource such that the user agent can set and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource of the same content-type. If the content-type is missing, the browser should assign a default low priority to the specified resource.
+The <code>type</code> attribute specifies the content-type of the resource such that the user agent can set and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource of the same content-type. If the content-type is missing, the user agent should assign a default low priority to the specified resource.
 
 <div class="example">
 Speculative parsers do not execute JavaScript and perform a shallow parse of CSS, which means that the fetch of any critical resource specified within JavaScript and CSS is delayed until the document parser is able to process the resource declaration. By using a <code>preload</code> hint the application can declaratively specify which resources the user agent should fetch early to mask the request latency and improve page performance.
