@@ -543,19 +543,19 @@ span.issue, span.note {
   <p data-fill-with=logo></p>
   <h1 class="p-name no-ref" id=title>Resource Hints</h1>
   <h2 class="no-num no-toc no-ref heading settled heading" id=subtitle><span class=content>Editor’s Draft,
-    <span class=dt-updated><span class=value-title title=20140706>6 July 2014</span></span></span></h2>
+    <span class=dt-updated><span class=value-title title=20140707>7 July 2014</span></span></span></h2>
   <div data-fill-with=spec-metadata><dl>
 	<dt>This version:
 	<dd><a class=u-url href=https://igrigorik.github.io/resource-hints/>https://igrigorik.github.io/resource-hints/</a>
 	<dt>Editor:
-	<dd><dd class="p-author h-card vcard"><a class="p-name fn u-email email" href=mailto:ilya@igvita.com>Ilya Grigorik</a> (<span class="p-org org">Google Inc.</span>)
+	<dd><dd class="p-author h-card vcard"><a class="p-name fn u-url url" href=https://www.igvita.com/>Ilya Grigorik</a> (<span class="p-org org">Google Inc.</span>)
 </dl>
 </div>
   <div data-fill-with=warning></div>
   <p class=copyright data-fill-with=copyright><a href=http://creativecommons.org/publicdomain/zero/1.0/ rel=license><img alt=CC0 src=https://i.creativecommons.org/p/zero/1.0/80x15.png></a>
 To the extent possible under law, the editors have waived all copyright
 and related or neighboring rights to this work.
-In addition, as of 6 July 2014,
+In addition, as of 7 July 2014,
 the editors have made this specification available under the
 <a href=http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0 rel=license>Open Web Foundation Agreement Version 1.0</a>,
 which is available at http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0.
@@ -565,7 +565,7 @@ Parts of this work may be from another specification document.  If so, those par
 </div>
 
 <h2 class="no-num no-toc no-ref heading settled heading" id=abstract><span class=content>Abstract</span></h2>
-<div class=p-summary data-fill-with=abstract><p>This specification defines <code>preconnect</code>, <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the browser in the decision process of which origins it should connect to, identification of critical resources, and which resources or pages may be required in the future.</p>
+<div class=p-summary data-fill-with=abstract><p>This specification defines <code>preconnect</code>, <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the user agent in the decision process of which origins it should connect to, identification of critical resources, and which resources or pages may be required in the future.</p>
 
 </div>
 <div data-fill-with=at-risk></div>
@@ -581,10 +581,10 @@ Parts of this work may be from another specification document.  If so, those par
 		<li><a href=#prerender><span class=secno>2.4</span> Prerender</a></ul>
 	<li><a href=#processing><span class=secno>3</span> Processing model</a>
 		<ul class=toc>
-		<li><a href=#best-effort><span class=secno>3.1</span> Best-effort processing</a>
-		<li><a href=#dynamic><span class=secno>3.2</span> Dynamic scheduling</a>
-		<li><a href=#caching><span class=secno>3.3</span> Caching</a>
-		<li><a href=#http-link><span class=secno>3.4</span> Interoperability with HTTP Link header</a></ul>
+		<li><a href=#best-effort-processing><span class=secno>3.1</span> Best-effort processing</a>
+		<li><a href=#dynamic-scheduling><span class=secno>3.2</span> Dynamic scheduling</a>
+		<li><a href=#http-link><span class=secno>3.3</span> Interoperability with HTTP Link header</a>
+		<li><a href=#caching-grace-period><span class=secno>3.4</span> Caching grace period</a></ul>
 	<li><a href=#conformance><span class=secno></span>  Conformance</a>
 	<li><a href=#references><span class=secno></span>  References</a>
 		<ul class=toc>
@@ -602,7 +602,7 @@ Parts of this work may be from another specification document.  If so, those par
 
 <p>The decision to initiate one or more of the above optimization is typically based on heuristic rules based on document markup and structure, navigation history, and context of the user - e.g. type of device, available compute, memory, and network connectivity, user preferences, and so on. These techniques have proven to be successful, but can be further improved by leveraging the application and page specific knowledge of the developer or the servers responsible for generation and delivery of these resources.</p>
 
-<p>For example, the application may provide the following resource hints to the browser:</p>
+<p>For example, the application may provide the following resource hints to the user agent:</p>
 
 <ul>
   <li>The list of origins from which critical resources will be fetched.
@@ -612,7 +612,7 @@ Parts of this work may be from another specification document.  If so, those par
 
 <p>Many web applications already leverage a variety prefetching techniques, such as using <code>XMLHttpRequest</code> to prefetch and cache assets before they are needed. However, these implementations are app-specific, are not interoperable with the browser-provided primitives, and do not provide the same level of performance, or worse, conflict and result in delayed or unnecessary downloads that degrade overall page performance.</p>
 
-<p>This specification defines <code>preconnect</code>, <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the browser in the decision process of which origins it should connect to, identification of critical resources, and which resources or pages may be required in the future.</p>
+<p>This specification defines <code>preconnect</code>, <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the user agent in the decision process of which origins it should connect to, identification of critical resources, and which resources or pages may be required in the future.</p>
 
 
 <h2 class="heading settled heading" data-level=2 id=resource-hints><span class=secno>2 </span><span class=content>Resource Hints</span><a class=self-link href=#resource-hints></a></h2>
@@ -663,7 +663,7 @@ Many sites rely on redirects for analytics and to anonymize the referrer before 
 &lt;link rel="preload" href="//example.com/app.js" type="text/javascript"&gt;
 </pre>
 
-<p>The <code>type</code> attribute specifies the content-type of the resource such that the user agent can set and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource of the same content-type. If the content-type is missing, the browser should assign a default low priority to the specified resource.</p>
+<p>The <code>type</code> attribute specifies the content-type of the resource such that the user agent can set and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource of the same content-type. If the content-type is missing, the user agent should assign a default low priority to the specified resource.</p>
 
 <div class=example>
 Speculative parsers do not execute JavaScript and perform a shallow parse of CSS, which means that the fetch of any critical resource specified within JavaScript and CSS is delayed until the document parser is able to process the resource declaration. By using a <code>preload</code> hint the application can declaratively specify which resources the user agent should fetch early to mask the request latency and improve page performance.
@@ -763,25 +763,73 @@ The <code>prerender</code> hint can be used by the application to signal high-li
 
 
 <h2 class="heading settled heading" data-level=3 id=processing><span class=secno>3 </span><span class=content>Processing model</span><a class=self-link href=#processing></a></h2>
-<h3 class="heading settled heading" data-level=3.1 id=best-effort><span class=secno>3.1 </span><span class=content>Best-effort processing</span><a class=self-link href=#best-effort></a></h3>
+<h3 class="heading settled heading" data-level=3.1 id=best-effort-processing><span class=secno>3.1 </span><span class=content>Best-effort processing</span><a class=self-link href=#best-effort-processing></a></h3>
 
-<p>Resource hints may be automatically downgraded by the user agent due to resource constraints or other reasons - e.g. instead of completing the full preload the user agent may opt out to only perform a preconnect for the hostname of the critical resource.</p>
+<p>The presence of a resource hint does not guarantee that the user agent will execute the specified optimization. The decision to invoke the optimization is deferred to the user agent based on page, user, and system contexts.</p>
 
-<p>Incognito, privacy.</p>
+<ul>
+  <li>The user agent may decide to execute none, some, or all of the optimizations provided via resource hints, and may also invoke additional optimizations based on its own heuristics.
+
+  <li>The user agent may decide to execute a partial optimization relative to the specified hint due to resource constraints or other reasons.
+    <ul>
+      <li><code>preconnect</code> may fallback to a partial handshake (DNS only, or DNS+TCP for HTTPS origins).
+      <li><code>preload</code> may fallback to <code>preconnect</code> for specified origin.
+      <li><code>prefetch</code> may fallback to <code>preconnect</code> for specified origin.
+      <li><code>prerender</code> may fallback to a mixed strategy for the target page and its resources: <code>preconnect</code> only; <code>prefetch</code> the target page but defer fetch of resources; <code>prefetch</code> subresources but delay their execution, and so on.
+    </ul>
+</ul>
+
+<p class=note>Note: <code>preload</code> and <code>prefetch</code> hints serve as implicit <code>preconnect</code> hints since a connection is required to fetch the resource; a <code>prerender</code> hint serves as an implicit <code>prefetch</code> hint, and so on. Performing a partial optimization allows the user agent to improve performance even if a full optimization cannot be performed.</p>
 
 
-<h3 class="heading settled heading" data-level=3.2 id=dynamic><span class=secno>3.2 </span><span class=content>Dynamic scheduling</span><a class=self-link href=#dynamic></a></h3>
-<h3 class="heading settled heading" data-level=3.3 id=caching><span class=secno>3.3 </span><span class=content>Caching</span><a class=self-link href=#caching></a></h3>
-UA should define cache behavior of prefetched resources.
-If the fetched resource (e.g. HTML doc) is marked as no-cache, how long can it be used for until its evicted?
+<h3 class="heading settled heading" data-level=3.2 id=dynamic-scheduling><span class=secno>3.2 </span><span class=content>Dynamic scheduling</span><a class=self-link href=#dynamic-scheduling></a></h3>
 
-<h3 class="heading settled heading" data-level=3.4 id=http-link><span class=secno>3.4 </span><span class=content>Interoperability with HTTP Link header</span><a class=self-link href=#http-link></a></h3>
+<p>In addition to the hints specified in the document markup, the application may have runtime resource hints based on user context or other signals. The user agent should process dynamically inserted resource hints in addition to and in the same way as document specified hints.</p>
+
+<pre>&lt;!-- insert new prerender hint --&gt;
+var hint = document.createElement("link")
+hint.setAttribute("rel", "prerender")
+hint.setAttribute("href", "/article/part3.html")
+document.getElementsByTagName("head")[0].appendChild(hint)
+
+&lt;!-- cancel prerender --&gt;
+document.getElementsByTagName("head")[0].removeChild(hint);
+</pre>
+
+<p>The removal of the hint from the document should cancel the optimization if it is being processed and prevent it from executing if it has not yet been invoked.</p>
 
 
+<h3 class="heading settled heading" data-level=3.3 id=http-link><span class=secno>3.3 </span><span class=content>Interoperability with HTTP Link header</span><a class=self-link href=#http-link></a></h3>
 
-<p>https://docs.google.com/document/d/1HeTVglnZHD_mGSaID1gUZPqLAa1lXWObV-Zkx6q_HF4/edit#
-http://tools.ietf.org/html/draft-nottingham-http-link-header-10</p>
+<p>The user agent should process resource hints specified via the <a href=http://tools.ietf.org/html/rfc5988><code>Link</code> HTTP header</a>.</p>
 
+<pre>Link: &lt;https://example.com&gt;; rel=preconnect
+Link: &lt;https://example.com/font.woff&gt;; rel=preload; type=font/woff
+Link: &lt;https://example.com/thankyou.html&gt;; rel=prefetch; type=text/html
+Link: &lt;https://example.com/article/part2.html&gt;; rel=prerender
+</pre>
+
+<p>The application may provide one or more of the same type of hint via multiple HTTP headers or via a comma separated list. The user agent should process such hints in addition to and in the same way as document specified and dynamically scheduled resource hints.</p>
+
+<div class=example>
+Delivering resource hints via <code>Link</code> header allows automated optimization services running on origin or upstream servers (e.g. CDN) to leverage and emit resource hints without modifying the delivered response.
+
+  <ul>
+    <li>The optimization service may leverage specified hints to preconnect, preload, or prefetch resources into its own cache, which will assist in faster delivery when the request arrives from the client.
+    <li>The optimization service may emit resource hints based own optimization heuristics (e.g. inferred page structure, request patterns, and so on) to assist the user agent.
+  </ul>
+</div>
+
+
+<h3 class="heading settled heading" data-level=3.4 id=caching-grace-period><span class=secno>3.4 </span><span class=content>Caching grace period</span><a class=self-link href=#caching-grace-period></a></h3>
+
+<p>Resources fetched via <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> are subject to regular HTTP caching and processing rules. However, special handling of some caching directives (e.g. <code>no-cache</code>, <code>no-store</code>, <code>max-age=0</code>) is required to avoid double downloads and unnecessary revalidation requests.</p>
+
+<p>For example, a resource is fetched via <code>preload</code> contains a <code>no-cache</code> directive. When the application dispatches the request to fetch this resource (via <code>XMLHttpRequest</code> or other means), the default user agent behavior would be to dispatch a revalidation or a duplicate download request before the response can be returned to the application, which is unnecessary and defeats the purpose of the resource hint.</p>
+
+<p>To address this, resources fetched via <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> should have a grace period of 300 seconds  during which the fetched response can be used to fulfill application requests without unnecessary revalidation or download requests.</p>
+
+<p class=note>Note: grace period TBD, 300 seconds is the current Chrome default for prerender and prefetch requests.</p>
 
 <h2 class="no-ref no-num heading settled heading" id=conformance><span class=content>
 Conformance</span><a class=self-link href=#conformance></a></h2>
