@@ -6,26 +6,26 @@ Status: ED
 Group: webperf
 ED: https://igrigorik.github.io/resource-hints/
 Editor: Ilya Grigorik, Google Inc., https://www.igvita.com/
-Abstract: This specification defines <code>preconnect</code>, <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the user agent in the decision process of which origins it should connect to, identification of critical resources, and which resources or pages may be required in the future.
+Abstract: This specification defines <code>preconnect</code>, <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the user agent in the decision process of which origins it should connect to, which resources it should fetch to improve performance, and which resources may be required by the next navigation.
 </pre>
 
 <h2 id="intro">Introduction</h2>
 
-Modern browsers leverage a wide variety of speculative optimization techniques to anticipate user input and intent, which allows them to hide some of the networking, processing, and rendering latencies: preconnects, early fetching of critical resources, prefetching of resources for subsequent navigation, and full page prerendering.
+Modern browsers leverage a wide variety of speculative optimization techniques to anticipate user input and intent, which allows them to hide some of the networking, processing, and rendering latencies: preconnects, early fetching of resources, prefetching of resources for subsequent navigation, and full page prerendering.
 
 The decision to initiate one or more of the above optimization is typically based on heuristic rules based on document markup and structure, navigation history, and context of the user - e.g. type of device, available compute, memory, and network connectivity, user preferences, and so on. These techniques have proven to be successful, but can be further improved by leveraging the application and page specific knowledge of the developer or the servers responsible for generation and delivery of these resources.
 
 For example, the application may provide the following resource hints to the user agent:
 
 <ul>
-  <li>The list of origins from which critical resources will be fetched.
-  <li>The list of critical resources that will be used to construct the page.
+  <li>The list of origins from which resources will be fetched.
+  <li>The list of resources that will be used to construct the page.
   <li>The next user action or navigation target, and the resources that will be required, based on current page or application state, individual user history, or aggregated session data.
 </ul>
 
 Many web applications already leverage a variety prefetching techniques, such as using <code>XMLHttpRequest</code> to prefetch and cache assets before they are needed. However, these implementations are app-specific, are not interoperable with the browser-provided primitives, and do not provide the same level of performance, or worse, conflict and result in delayed or unnecessary downloads that degrade overall page performance.
 
-This specification defines <code>preconnect</code>, <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the user agent in the decision process of which origins it should connect to, identification of critical resources, and which resources or pages may be required in the future.
+This specification defines <code>preconnect</code>, <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the user agent in the decision process of which origins it should connect to, which resources it should fetch to improve performance, and which resources may be required by the next navigation.
 
 
 <h2 id="resource-hints">Resource Hints</h2>
@@ -33,8 +33,8 @@ This specification defines <code>preconnect</code>, <code>preload</code>, <code>
 Resource hints are advisory and are used to assist the user agent in the decision making process of which optimizations can be applied when the page is being loaded, or as the user is interacting with the application.
 
 <ul>
-  <li><b>Preconnect</b> is used to indicate origins from which critical resources will be fetched.</li>
-  <li><b>Preload</b> is used to indicate critical resources that should be fetched as early as possible.</li>
+  <li><b>Preconnect</b> is used to indicate origins from which resources will be fetched.</li>
+  <li><b>Preload</b> is used to indicate resources that should be fetched as early as possible.</li>
   <li><b>Prefetch</b> is used to indicate resources that will be required in the future.</li>
   <li><b>Prerender</b> is used to indicate the next navigation target.</li>
 </ul>
@@ -58,7 +58,7 @@ As a result, existing <code>dns-prefetch</code> hints can be treated as <code>pr
 </div>
 
 <div class="example">
-The exact URL of a critical resource may not be known until the page is being constructed by the user agent - e.g. conditional loading logic, UA adaptation, etc. However, the origin from which one or more of these resources will be fetched is often known ahead of time by the developer or the server generating the response. In such cases, a <code>preconnect</code> hint can be used to initiate an early connection handshake such that when the resource URL is determined, the user agent can immediately dispatch the request without first blocking on connection negotiation.
+The exact URL of a required resource may not be known until the page is being constructed by the user agent - e.g. conditional loading logic, UA adaptation, etc. However, the origin from which one or more of these resources will be fetched is often known ahead of time by the developer or the server generating the response. In such cases, a <code>preconnect</code> hint can be used to initiate an early connection handshake such that when the resource URL is determined, the user agent can immediately dispatch the request without first blocking on connection negotiation.
 </div>
 
 <div class="example">
@@ -81,27 +81,27 @@ The <code>preload</code> hint is used to indicate the URL and content-type of a 
 The <code>type</code> attribute specifies the content-type of the resource such that the user agent can set and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource of the same content-type. If the content-type is missing, the user agent should assign a default low priority to the specified resource.
 
 <div class="example">
-Speculative parsers do not execute JavaScript and perform a shallow parse of CSS, which means that the fetch of any critical resource specified within JavaScript and CSS is delayed until the document parser is able to process the resource declaration. By using a <code>preload</code> hint the application can declaratively specify which resources the user agent should fetch early to mask the request latency and improve page performance.
+Speculative parsers do not execute JavaScript and perform a shallow parse of CSS, which means that the fetch of resources specified within JavaScript and CSS is delayed until the document parser is able to process the resource declaration. By using a <code>preload</code> hint the application can declaratively specify which resources the user agent should fetch early to mask the request latency and improve page performance.
 </div>
 
 <div class="example">
-The <code>preload</code> hint can be generated both by the application and an optimization proxy (e.g. a CDN) to accelerate fetch and delivery of critical resources.
+The <code>preload</code> hint can be generated both by the application and an optimization proxy (e.g. a CDN) to accelerate fetch and delivery of required resources.
 
 <ol>
   <li>The application can specify <code>preload</code> hints, allowing:
     <ul>
       <li>The optimization proxy to initiate early fetch of the associated resources and place them into its cache, thus reducing or eliminating the latency of retrieving resources from the origin.
-      <li>The user agent to initiate early fetch of critical resources - see example above.
+      <li>The user agent to initiate early fetch of required resources - see example above.
     </ul>
 
   <li>The optimization proxy can specify <code>preload</code> hints on behalf of the application:
     <ul>
-      <li>The proxy can observe and infer critical resources based on past request patterns, allowing it to automate generation of relevant <code>preload</code> hints to improve performance.
-      <li>The proxy can deliver inferred <code>preload</code> hints to the user agent while it is blocked on the response from the origin, allowing the user agent to begin fetching critical resources.
+      <li>The proxy can observe and infer required resources based on past request patterns, allowing it to automate generation of relevant <code>preload</code> hints to improve performance.
+      <li>The proxy can deliver inferred <code>preload</code> hints to the user agent while it is blocked on the response from the origin, allowing the user agent to begin fetching required resources.
     </ul>
 
     <div class="note">
-      Many optimization proxies already implement the "early flush" strategy where references to critical resources are delivered to the user agent while the proxy is blocked on the response from the origin. Today, this is typically done by synthesizing a document <code>&lt;head&gt;</code> that contains XHR, image, and object requests. However, in practice, these implementations often result in prioritization conflicts with requests initiated by speculative and document parsers, or worse, result in delayed or double downloads due to missing content-type information.
+      Many optimization proxies already implement the "early flush" strategy where references to required resources are delivered to the user agent while the proxy is blocked on the response from the origin. Today, this is typically done by synthesizing a document <code>&lt;head&gt;</code> that contains XHR, image, and object requests. However, in practice, these implementations often result in prioritization conflicts with requests initiated by speculative and document parsers, or worse, result in delayed or double downloads due to missing content-type information.
 
       The <code>preload</code> hint addresses these problems by providing a declarative hint that communicates both the URL and the content-type of the resource.
     </div>
@@ -111,7 +111,7 @@ The <code>preload</code> hint can be generated both by the application and an op
 
 <h3 id="prefetch">Prefetch</h3>
 
-The <code>prefetch</code> hint is used to indicate the URL and content-type of a resource that is likely to be a critical resource when the next action or navigation is triggered. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.
+The <code>prefetch</code> hint is used to indicate the URL and content-type of a resource that is likely to be a required resource when the next action or navigation is triggered. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.
 
 <pre>
   &lt;link rel="prefetch" href="//example.com/thankyou.html" type="text/html"&gt;
@@ -128,14 +128,14 @@ Specified <code>prefetch</code> resources should not negatively impact the perfo
   <li>The optimal time to initiate the resource fetch is dependent on the negotiated protocol, users current connectivity profile, available device resources, and other context specific variables. As a result, this decision is deferred to the user agent, which is in the best position to determine the optimal time - e.g. the user agent may decide to wait until all other downloads are finished, or choose to pipeline requests with low priority if the negotiated protocol supports the necessary primitives.
 </ul>
 
-The user agent should not cancel outstanding <code>prefetch</code> requests when a new navigation is triggered as they may be required by the next page. However, the user agent may cancel these requests once it determines that they are not critical resources for the new destination.
+The user agent should not cancel outstanding <code>prefetch</code> requests when a new navigation is triggered as they may be required by the next page. However, the user agent may cancel these requests once it determines that they are not required by the new destination.
 
 <div class="example">
 The <code>prefetch</code> hint can be used to implement a prefetch strategy that leverages app-specific knowledge about the next navigation.
 
-For example, an image gallery may have knowledge about the likelihood of next photo or page that may be requested by the user. To provide an improved experience the application can ask the user-agent to begin fetching the critical assets before the next navigation is triggered.
+For example, an image gallery may have knowledge about the likelihood of next photo or page that may be requested by the user. To provide an improved experience the application can ask the user agent to begin fetching required resources before the next navigation is triggered.
 
-Alternatively, instead of anticipating user activity, the application can react to user input and dynamically schedule prefetch requests based on its knowledge of the critical resources that will be required by the next navigation target - i.e. the application may capture a click event and provide <code>prefetch</code> hints to the user agent before the current page is unloaded.
+Alternatively, instead of anticipating user activity, the application can react to user input and dynamically schedule prefetch requests based on its knowledge of resources that will be required by the next navigation target - i.e. the application may capture a click event and provide <code>prefetch</code> hints to the user agent before the current page is unloaded.
 </div>
 
 
@@ -157,7 +157,7 @@ Specified <code>prerender</code> target should not negatively impact the perform
   <li>To minimize resource contention the prerendered content may be processed with lower priority.
     <ul>
       <li>The background render may be allocated fewer CPU, GPU, or memory resources.
-      <li>The priority of all <code>prerender</code> requests should be lower than that of resources required by the current page and the optimal time to initiate these requests is deferred to the user-agent.
+      <li>The priority of all <code>prerender</code> requests should be lower than that of resources required by the current page and the optimal time to initiate these requests is deferred to the user agent.
       <li>Some resource requests may be delayed until the prerendered page is made visible - e.g. media downloads, plugin content, and so on.
     </ul>
 
