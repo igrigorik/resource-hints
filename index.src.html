@@ -182,20 +182,70 @@ To ensure compatibility and improve success rate of prerender requests the targe
 <h2 id="processing">Processing model</h2>
 <h3 id="best-effort">Best-effort processing</h3>
 
-Resource hints may be automatically downgraded by the user agent due to resource constraints or other reasons - e.g. instead of completing the full preload the user agent may opt out to only perform a preconnect for the hostname of the critical resource.
+The presence of a resource hint does not guarantee that the user agent will execute the specified optimization. The decision to invoke the optimization is deferred to the user agent based on page, user, and system contexts.
 
-Incognito, privacy.
+<ul>
+  <li>The user agent may decide to execute none, some, or all of the optimizations provided via resource hints, and may also invoke additional optimizations based on its own heuristics.
+
+  <li>The user agent may decide to execute a partial optimization relative to the specified hint due to resource constraints or other reasons.
+    <ul>
+      <li><code>preconnect</code> may fallback to a partial handshake (DNS only, or DNS+TCP for HTTPS origins).
+      <li><code>preload</code> may fallback to <code>preconnect</code> for specified origin.
+      <li><code>prefetch</code> may fallback to <code>preconnect</code> for specified origin.
+      <li><code>prerender</code> may fallback to a mixed strategy for the target page and its resources: <code>preconnect</code> only; <code>prefetch</code> the target page but defer fetch of resources; <code>prefetch</code> subresources but delay their execution, and so on.
+    </ul>
+</ul>
+
+Note: <code>preload</code> and <code>prefetch</code> hints serve as implicit <code>preconnect</code> hints since a connection is required to fetch the resource; a <code>prerender</code> hint serves as an implicit <code>prefetch</code> hint, and so on. Performing a partial optimization allows the user agent to improve performance even if a full optimization cannot be performed.
 
 
 <h3 id="dynamic">Dynamic scheduling</h3>
-<h3 id="caching">Caching</h3>
-UA should define cache behavior of prefetched resources.
-If the fetched resource (e.g. HTML doc) is marked as no-cache, how long can it be used for until its evicted?
+
+In addition to the hints specified in the document markup, the application may have runtime resource hints based on user context or other signals. The user agent should process dynamically inserted resource hints in addition to and in the same way as document specified hints.
+
+<pre>
+  &lt;!-- insert new prerender hint --&gt;
+  var hint = document.createElement("link")
+  hint.setAttribute("rel", "prerender")
+  hint.setAttribute("href", "/article/part3.html")
+  document.getElementsByTagName("head")[0].appendChild(hint)
+
+  &lt;!-- cancel prerender --&gt;
+  document.getElementsByTagName("head")[0].removeChild(hint);
+</pre>
+
+The removal of the hint from the document should cancel the optimization if it is being processed and prevent it from executing if it has not yet been invoked.
+
 
 <h3 id="http-link">Interoperability with HTTP Link header</h3>
 
+The user agent should process resource hints specified via the <a href="http://tools.ietf.org/html/rfc5988"><code>Link</code> HTTP header</a>.
+
+<pre>
+  Link: &lt;https://example.com&gt;; rel=preconnect
+  Link: &lt;https://example.com/font.woff&gt;; rel=preload; type=font/woff
+  Link: &lt;https://example.com/thankyou.html&gt;; rel=prefetch; type=text/html
+  Link: &lt;https://example.com/article/part2.html&gt;; rel=prerender
+</pre>
+
+The application may provide one or more of the same type of hint via multiple HTTP headers or via a comma separated list. The user agent should process such hints in addition to and in the same way as document specified and dynamically scheduled resource hints.
+
+<div class="example">
+Delivering resource hints via <code>Link</code> header allows automated optimization services running on origin or upstream servers (e.g. CDN) to leverage and emit resource hints without modifying the delivered response.
+
+  <ul>
+    <li>The optimization service may leverage specified hints to preconnect, preload, or prefetch resources into its own cache, which will assist in faster delivery when the request arrives from the client.
+    <li>The optimization service may emit resource hints based own optimization heuristics (e.g. inferred page structure, request patterns, and so on) to assist the user agent.
+  </ul>
+</div>
 
 
-https://docs.google.com/document/d/1HeTVglnZHD_mGSaID1gUZPqLAa1lXWObV-Zkx6q_HF4/edit#
-http://tools.ietf.org/html/draft-nottingham-http-link-header-10
+<h3 id="caching">Caching grace period</h3>
 
+Resources fetched via <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> are subject to regular HTTP caching and processing rules. However, special handling of some caching directives (e.g. <code>no-cache</code>, <code>no-store</code>, <code>max-age=0</code>) is required to avoid double downloads and unnecessary revalidation requests.
+
+For example, a resource is fetched via <code>preload</code> contains a <code>no-cache</code> directive. When the application dispatches the request to fetch this resource (via <code>XMLHttpRequest</code> or other means), the default user agent behavior would be to dispatch a revalidation or a duplicate download request before the response can be returned to the application, which is unnecessary and defeats the purpose of the resource hint.
+
+To address this, resources fetched via <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> should have a grace period of 300 seconds  during which the fetched response can be used to fulfill application requests without unnecessary revalidation or download requests.
+
+Note: grace period TBD, 300 seconds is the current Chrome default for prerender and prefetch requests.
