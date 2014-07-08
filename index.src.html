@@ -151,7 +151,7 @@ The <code>prerender</code> hint is used to indicate the URL of the next navigati
 The <code>prerender</code> hint can be used by the application to signal high-likelihood navigation targets based on content, structure, analytics, or other signals - e.g. high-likelihood search results, paginated content or step-driven flows, aggregated analytics or per-user behavior, and so on.
 </div>
 
-Specified <code>prerender</code> target should not negatively impact the performance of the current page. Due to the need to download, parse, and execute the target resource and its assets, prerendering may result in high contention for CPU, GPU, memory, and network resources. As a result, the user agent may implement various strategies to minimize resource contention and impose limits on the type and properties of the content that is being prerendered:
+Specified <code>prerender</code> target should not negatively impact the performance of the current page. Due to the need to download, parse, and execute the target resource and its assets, prerendering may result in high contention for CPU, GPU, memory, and network resources. As a result, the user agent may implement various strategies to minimize resource contention and impose limits on the properties of the content that is being prerendered:
 
 <ul>
   <li>To minimize resource contention the prerendered content may be processed with lower priority.
