@@ -537,13 +537,17 @@ span.issue, span.note {
   border-right-style: solid;
 }
   </style>
+<style>
+#forkongithub a{background:#356b00;color:#fff;text-decoration:none;font-family:arial,sans-serif;text-align:center;font-weight:bold;padding:5px 40px;font-size:1rem;line-height:2rem;position:relative;transition:0.5s;}#forkongithub a:hover{background:#c11;color:#fff;}#forkongithub a::before,#forkongithub a::after{content:"";width:100%;display:block;position:absolute;top:1px;left:0;height:1px;background:#fff;}#forkongithub a::after{bottom:1px;top:auto;}@media screen and (min-width:800px){#forkongithub{position:fixed;display:block;top:0;right:0;width:200px;overflow:hidden;height:200px;z-index:9999;}#forkongithub a{width:200px;position:absolute;top:60px;right:-60px;transform:rotate(45deg);-webkit-transform:rotate(45deg);-ms-transform:rotate(45deg);-moz-transform:rotate(45deg);-o-transform:rotate(45deg);box-shadow:0px 0px 5px rgba(0,0,0,0.6);}}
+</style>
+
 </head>
 <body class=h-entry>
 <div class=head>
   <p data-fill-with=logo></p>
   <h1 class="p-name no-ref" id=title>Resource Hints</h1>
   <h2 class="no-num no-toc no-ref heading settled heading" id=subtitle><span class=content>Editor’s Draft,
-    <span class=dt-updated><span class=value-title title=20140707>7 July 2014</span></span></span></h2>
+    <span class=dt-updated><span class=value-title title=20140708>8 July 2014</span></span></span></h2>
   <div data-fill-with=spec-metadata><dl>
 	<dt>This version:
 	<dd><a class=u-url href=https://igrigorik.github.io/resource-hints/>https://igrigorik.github.io/resource-hints/</a>
@@ -555,7 +559,7 @@ span.issue, span.note {
   <p class=copyright data-fill-with=copyright><a href=http://creativecommons.org/publicdomain/zero/1.0/ rel=license><img alt=CC0 src=https://i.creativecommons.org/p/zero/1.0/80x15.png></a>
 To the extent possible under law, the editors have waived all copyright
 and related or neighboring rights to this work.
-In addition, as of 7 July 2014,
+In addition, as of 8 July 2014,
 the editors have made this specification available under the
 <a href=http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0 rel=license>Open Web Foundation Agreement Version 1.0</a>,
 which is available at http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0.
@@ -594,6 +598,9 @@ Parts of this work may be from another specification document.  If so, those par
 	<li><a href=#property-index><span class=secno></span>  Property index</a></ul></div>
 
 
+
+
+<p><span id=forkongithub><a href=https://github.com/igrigorik/resource-hints/issues>Issues &amp; Feedback</a></span></p>
 
 
 <h2 class="heading settled heading" data-level=1 id=intro><span class=secno>1 </span><span class=content>Introduction</span><a class=self-link href=#intro></a></h2>
@@ -637,14 +644,14 @@ Parts of this work may be from another specification document.  If so, those par
 
 <p>The optimal number of connections per origin is dependent on the negotiated protocol, users current connectivity profile, available device resources, and other context specific variables. As a result, this decision is deferred to the user agent, which is in the best position to determine the optimal number.</p>
 
-<div class=note>
-Many existing user agents implement <code>dns-prefetch</code> that only performs the DNS lookup. However, there are no circumstances where a standalone DNS lookup is useful unless you also intend to connect to the specified origin, and further, the bulk of the latency cost remains in the TCP and TLS handshakes.
+<p>The user agent should perform the full connection handshake (DNS+TCP for HTTP, and DNS+TCP+TLS for HTTPS origins) whenever possible, but is allowed to elect to perform a partial handshake (DNS only for HTTP, and DNS or DNS+TCP for HTTPS origins) due to resource constraints or other reasons.</p>
 
-<p>As a result, existing <code>dns-prefetch</code> hints can be treated as <code>preconnect</code> hints. The user agent may choose to perform a partial handshake (DNS only for HTTP, or DNS+TCP for HTTPS origins) based on implemented heuristics, but it should attempt to complete the full connection handshake (DNS+TCP for HTTP, and DNS+TCP+TLS for HTTPS origins) whenever possible to deliver the best results.
-</div><p></p>
+<div class=note>
+Many existing user agents implement <code>dns-prefetch</code> that only performs the DNS lookup. However, there are no circumstances where a standalone DNS lookup is useful unless you also intend to connect to the specified origin, and further, the bulk of the latency cost remains in the TCP and TLS handshakes. As a result, existing <code>dns-prefetch</code> hints can be treated as <code>preconnect</code> hints.
+</div>
 
 <div class=example>
-The exact URL of a required resource may not be known until the page is being constructed by the user agent - e.g. conditional loading logic, UA adaptation, etc. However, the origin from which one or more of these resources will be fetched is often known ahead of time by the developer or the server generating the response. In such cases, a <code>preconnect</code> hint can be used to initiate an early connection handshake such that when the resource URL is determined, the user agent can immediately dispatch the request without first blocking on connection negotiation.
+The full resource URL may not be known until the page is being constructed by the user agent - e.g. conditional loading logic, UA adaptation, etc. However, the origin from which one or more of these resources will be fetched is often known ahead of time by the developer or the server generating the response. In such cases, a <code>preconnect</code> hint can be used to initiate an early connection handshake such that when the resource URL is determined, the user agent can dispatch the request without first blocking on connection negotiation.
 </div>
 
 <div class=example>
@@ -734,7 +741,7 @@ The <code>prefetch</code> hint can be used to implement a prefetch strategy that
 The <code>prerender</code> hint can be used by the application to signal high-likelihood navigation targets based on content, structure, analytics, or other signals - e.g. high-likelihood search results, paginated content or step-driven flows, aggregated analytics or per-user behavior, and so on.
 </div>
 
-<p>Specified <code>prerender</code> target should not negatively impact the performance of the current page. Due to the need to download, parse, and execute the target resource and its assets, prerendering may result in high contention for CPU, GPU, memory, and network resources. As a result, the user agent may implement various strategies to minimize resource contention and impose limits on the type and properties of the content that is being prerendered:</p>
+<p>Specified <code>prerender</code> target should not negatively impact the performance of the current page. Due to the need to download, parse, and execute the target resource and its assets, prerendering may result in high contention for CPU, GPU, memory, and network resources. As a result, the user agent may implement various strategies to minimize resource contention and impose limits on the properties of the content that is being prerendered:</p>
 
 <ul>
   <li>To minimize resource contention the prerendered content may be processed with lower priority.
