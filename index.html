@@ -547,7 +547,7 @@ span.issue, span.note {
   <p data-fill-with=logo></p>
   <h1 class="p-name no-ref" id=title>Resource Hints</h1>
   <h2 class="no-num no-toc no-ref heading settled heading" id=subtitle><span class=content>Editor’s Draft,
-    <span class=dt-updated><span class=value-title title=20140708>8 July 2014</span></span></span></h2>
+    <span class=dt-updated><span class=value-title title=20140710>10 July 2014</span></span></span></h2>
   <div data-fill-with=spec-metadata><dl>
 	<dt>This version:
 	<dd><a class=u-url href=https://igrigorik.github.io/resource-hints/>https://igrigorik.github.io/resource-hints/</a>
@@ -559,7 +559,7 @@ span.issue, span.note {
   <p class=copyright data-fill-with=copyright><a href=http://creativecommons.org/publicdomain/zero/1.0/ rel=license><img alt=CC0 src=https://i.creativecommons.org/p/zero/1.0/80x15.png></a>
 To the extent possible under law, the editors have waived all copyright
 and related or neighboring rights to this work.
-In addition, as of 8 July 2014,
+In addition, as of 10 July 2014,
 the editors have made this specification available under the
 <a href=http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0 rel=license>Open Web Foundation Agreement Version 1.0</a>,
 which is available at http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0.
@@ -588,7 +588,7 @@ Parts of this work may be from another specification document.  If so, those par
 		<li><a href=#best-effort-processing><span class=secno>3.1</span> Best-effort processing</a>
 		<li><a href=#dynamic-scheduling><span class=secno>3.2</span> Dynamic scheduling</a>
 		<li><a href=#http-link><span class=secno>3.3</span> Interoperability with HTTP Link header</a>
-		<li><a href=#caching-grace-period><span class=secno>3.4</span> Caching grace period</a></ul>
+		<li><a href=#matching-request><span class=secno>3.4</span> Matching hint responses with requests</a></ul>
 	<li><a href=#conformance><span class=secno></span>  Conformance</a>
 	<li><a href=#references><span class=secno></span>  References</a>
 		<ul class=toc>
@@ -627,10 +627,10 @@ Parts of this work may be from another specification document.  If so, those par
 <p>Resource hints are advisory and are used to assist the user agent in the decision making process of which optimizations can be applied when the page is being loaded, or as the user is interacting with the application.</p>
 
 <ul>
-  <li><b>Preconnect</b> is used to indicate origins from which resources will be fetched.</li>
-  <li><b>Preload</b> is used to indicate resources that should be fetched as early as possible.</li>
-  <li><b>Prefetch</b> is used to indicate resources that will be required in the future.</li>
-  <li><b>Prerender</b> is used to indicate the next navigation target.</li>
+  <li><b>Preconnect</b> is used to indicate origins from which resources will be fetched.
+  <li><b>Preload</b> is used to indicate resources that should be fetched as early as possible.
+  <li><b>Prefetch</b> is used to indicate resources that may be required by the next navigation.
+  <li><b>Prerender</b> is used to indicate the next navigation target.
 </ul>
 
 
@@ -828,15 +828,15 @@ Delivering resource hints via <code>Link</code> header allows automated optimiza
 </div>
 
 
-<h3 class="heading settled heading" data-level=3.4 id=caching-grace-period><span class=secno>3.4 </span><span class=content>Caching grace period</span><a class=self-link href=#caching-grace-period></a></h3>
+<h3 class="heading settled heading" data-level=3.4 id=matching-request><span class=secno>3.4 </span><span class=content>Matching hint responses with requests</span><a class=self-link href=#matching-request></a></h3>
 
-<p>Resources fetched via <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> are subject to regular HTTP caching and processing rules. However, special handling of some caching directives (e.g. <code>no-cache</code>, <code>no-store</code>, <code>max-age=0</code>) is required to avoid double downloads and unnecessary revalidation requests.</p>
+<p>Resources fetched via <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> are retained by the user agent until they are processed by a matching request from the same navigation context. The user agent may decide to discard the retained response due to resource constraints, a timeout, or other reasons.</p>
 
-<p>For example, a resource is fetched via <code>preload</code> contains a <code>no-cache</code> directive. When the application dispatches the request to fetch this resource (via <code>XMLHttpRequest</code> or other means), the default user agent behavior would be to dispatch a revalidation or a duplicate download request before the response can be returned to the application, which is unnecessary and defeats the purpose of the resource hint.</p>
+<p class=note>Note: the user agent should try to retain the fetched response for at least 300 seconds prior to discarding it.</p>
 
-<p>To address this, resources fetched via <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> should have a grace period of 300 seconds  during which the fetched response can be used to fulfill application requests without unnecessary revalidation or download requests.</p>
-
-<p class=note>Note: grace period TBD, 300 seconds is the current Chrome default for prerender and prefetch requests.</p>
+<div class=example>
+A JavaScript resource is fetched via <code>preload</code> and the response contains a <code>no-cache</code> directive. The fetched response is retained by the user agent and is immediately returned when a matching request is dispatched at a later time - e.g. via a <code>script</code> tag or other means. This ensures that the user agent does not incur an unnecessary revalidation, or a duplicate download, between the initial resource fetch initiated via the specified resource hint and a later request that requires that resource.
+</div>
 
 <h2 class="no-ref no-num heading settled heading" id=conformance><span class=content>
 Conformance</span><a class=self-link href=#conformance></a></h2>
