@@ -247,12 +247,12 @@ Delivering resource hints via <code>Link</code> header allows automated optimiza
 </div>
 
 
-<h3 id="caching-grace-period">Caching grace period</h3>
+<h3 id="matching-request">Matching hint responses with requests</h3>
 
-Resources fetched via <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> are subject to regular HTTP caching and processing rules. However, special handling of some caching directives (e.g. <code>no-cache</code>, <code>no-store</code>, <code>max-age=0</code>) is required to avoid double downloads and unnecessary revalidation requests.
+Resources fetched via <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> are retained by the user agent until they are processed by a matching request from the same navigation context. The user agent may decide to discard the retained response due to resource constraints, a timeout, or other reasons.
 
-For example, a resource is fetched via <code>preload</code> contains a <code>no-cache</code> directive. When the application dispatches the request to fetch this resource (via <code>XMLHttpRequest</code> or other means), the default user agent behavior would be to dispatch a revalidation or a duplicate download request before the response can be returned to the application, which is unnecessary and defeats the purpose of the resource hint.
+Note: the user agent should try to retain the fetched response for at least 300 seconds prior to discarding it.
 
-To address this, resources fetched via <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> should have a grace period of 300 seconds  during which the fetched response can be used to fulfill application requests without unnecessary revalidation or download requests.
-
-Note: grace period TBD, 300 seconds is the current Chrome default for prerender and prefetch requests.
+<div class="example">
+A JavaScript resource is fetched via <code>preload</code> and the response contains a <code>no-cache</code> directive. The fetched response is retained by the user agent and is immediately returned when a matching request is dispatched at a later time - e.g. via a <code>script</code> tag or other means. This ensures that the user agent does not incur an unnecessary revalidation, or a duplicate download, between the initial resource fetch initiated via the specified resource hint and a later request that requires that resource.
+</div>
