@@ -667,9 +667,9 @@ Many sites rely on redirects for analytics and to anonymize the referrer before 
 <p>The <code>preload</code> hint is used to indicate the URL and the associated context of a resource that should be fetched as early as possible by the user agent. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.</p>
 
 <pre>&lt;link rel="preload" href="//example.com/font.woff" context="font"&gt;
+&lt;link rel="preload" href="//example.com/logo.webp" context="image"&gt;
 &lt;link rel="preload" href="//example.com/app.js"    context="script"&gt;
-&lt;link rel="preload" href="//example.com/logo-lores.webp" context="image" media="max-resolution: 2dppx"&gt;
-&lt;link rel="preload" href="//example.com/logo-hires.webp" context="image" media="min-resolution: 2dppx"&gt;
+&lt;link rel="preload" href="//example.com/mobile-ui-framework.js" context="script" media="screen and (max-width: 640px)"&gt;
 </pre>
 
 <p>The <code>context</code> attribute allows the user agent to set the <a href=http://fetch.spec.whatwg.org/#concept-request-context>request context</a> (see <a data-biblio-type=informative data-link-type=biblio href=#biblio-fetch title=biblio-fetch>[FETCH]</a>) and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource with the same context. If the context is missing, the user agent should assign a default low priority to the specified resource.</p>
@@ -712,8 +712,8 @@ The <code>preload</code> hint can be generated both by the application and an op
 <p>The <code>prefetch</code> hint is used to indicate the URL and the associated context of a resource that is likely to be a required resource when the next action or navigation is triggered. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.</p>
 
 <pre>&lt;link rel="prefetch" href="//example.com/thankyou.html" context="fetch"&gt;
-&lt;link rel="prefetch" href="//example.com/ty-small.webp" context="image" media="max-width: 640px"&gt;
-&lt;link rel="prefetch" href="//example.com/ty-large.webp" context="image" media="min-width: 640px"&gt;
+&lt;link rel="prefetch" href="//example.com/ty-small.webp" context="image" media="(max-width: 640px)"&gt;
+&lt;link rel="prefetch" href="//example.com/ty-large.webp" context="image" media="(min-width: 641px)"&gt;
 </pre>
 
 <p>Specified <code>prefetch</code> resources should not negatively impact the performance of the current page:</p>
