@@ -547,7 +547,7 @@ span.issue, span.note {
   <p data-fill-with=logo></p>
   <h1 class="p-name no-ref" id=title>Resource Hints</h1>
   <h2 class="no-num no-toc no-ref heading settled heading" id=subtitle><span class=content>Editor’s Draft,
-    <span class=dt-updated><span class=value-title title=20140710>10 July 2014</span></span></span></h2>
+    <span class=dt-updated><span class=value-title title=20140725>25 July 2014</span></span></span></h2>
   <div data-fill-with=spec-metadata><dl>
 	<dt>This version:
 	<dd><a class=u-url href=https://igrigorik.github.io/resource-hints/>https://igrigorik.github.io/resource-hints/</a>
@@ -559,7 +559,7 @@ span.issue, span.note {
   <p class=copyright data-fill-with=copyright><a href=http://creativecommons.org/publicdomain/zero/1.0/ rel=license><img alt=CC0 src=https://i.creativecommons.org/p/zero/1.0/80x15.png></a>
 To the extent possible under law, the editors have waived all copyright
 and related or neighboring rights to this work.
-In addition, as of 10 July 2014,
+In addition, as of 25 July 2014,
 the editors have made this specification available under the
 <a href=http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0 rel=license>Open Web Foundation Agreement Version 1.0</a>,
 which is available at http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0.
@@ -588,7 +588,8 @@ Parts of this work may be from another specification document.  If so, those par
 		<li><a href=#best-effort-processing><span class=secno>3.1</span> Best-effort processing</a>
 		<li><a href=#dynamic-scheduling><span class=secno>3.2</span> Dynamic scheduling</a>
 		<li><a href=#http-link><span class=secno>3.3</span> Interoperability with HTTP Link header</a>
-		<li><a href=#matching-request><span class=secno>3.4</span> Matching hint responses with requests</a></ul>
+		<li><a href=#matching-request><span class=secno>3.4</span> Matching hint responses with requests</a>
+		<li><a href=#prioritization><span class=secno>3.5</span> Request prioritization</a></ul>
 	<li><a href=#conformance><span class=secno></span>  Conformance</a>
 	<li><a href=#references><span class=secno></span>  References</a>
 		<ul class=toc>
@@ -663,14 +664,14 @@ Many sites rely on redirects for analytics and to anonymize the referrer before 
 
 <h3 class="heading settled heading" data-level=2.2 id=preload><span class=secno>2.2 </span><span class=content>Preload</span><a class=self-link href=#preload></a></h3>
 
-<p>The <code>preload</code> hint is used to indicate the URL and content-type of a resource that should be fetched as early as possible by the user agent. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.</p>
+<p>The <code>preload</code> hint is used to indicate the URL and the associated context of a resource that should be fetched as early as possible by the user agent. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.</p>
 
-<pre>&lt;link rel="preload" href="//example.com/font.woff" type="font/woff"&gt;
-&lt;link rel="preload" href="//example.com/logo.webp" type="image/webp"&gt;
-&lt;link rel="preload" href="//example.com/app.js" type="text/javascript"&gt;
+<pre>&lt;link rel="preload" href="//example.com/font.woff" context="font"&gt;
+&lt;link rel="preload" href="//example.com/logo.webp" context="image"&gt;
+&lt;link rel="preload" href="//example.com/app.js"    context="script"&gt;
 </pre>
 
-<p>The <code>type</code> attribute specifies the content-type of the resource such that the user agent can set and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource of the same content-type. If the content-type is missing, the user agent should assign a default low priority to the specified resource.</p>
+<p>The <code>context</code> attribute allows the user agent to set the <a href=http://fetch.spec.whatwg.org/#concept-request-context>request context</a> (see <a data-biblio-type=informative data-link-type=biblio href=#biblio-fetch title=biblio-fetch>[FETCH]</a>) and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource with the same context. If the context is missing, the user agent should assign a default low priority to the specified resource.</p>
 
 <div class=example>
 Speculative parsers do not execute JavaScript and perform a shallow parse of CSS, which means that the fetch of resources specified within JavaScript and CSS is delayed until the document parser is able to process the resource declaration. By using a <code>preload</code> hint the application can declaratively specify which resources the user agent should fetch early to mask the request latency and improve page performance.
@@ -693,9 +694,9 @@ The <code>preload</code> hint can be generated both by the application and an op
     </ul>
 
     <div class=note>
-      Many optimization proxies already implement the "early flush" strategy where references to required resources are delivered to the user agent while the proxy is blocked on the response from the origin. Today, this is typically done by synthesizing a document <code>&lt;head&gt;</code> that contains XHR, image, and object requests. However, in practice, these implementations often result in prioritization conflicts with requests initiated by speculative and document parsers, or worse, result in delayed or double downloads due to missing content-type information.
+      Many optimization proxies already implement the "early flush" strategy where references to required resources are delivered to the user agent while the proxy is blocked on the response from the origin. Today, this is typically done by synthesizing a document <code>&lt;head&gt;</code> that contains XHR, image, and object requests. However, in practice, these implementations often result in prioritization conflicts with requests initiated by speculative and document parsers, or worse, result in delayed or double downloads due to missing context information.
 
-<p>The <code>preload</code> hint addresses these problems by providing a declarative hint that communicates both the URL and the content-type of the resource.</p>
+<p>The <code>preload</code> hint addresses these problems by providing a declarative hint that communicates both the URL and the context of the resource.</p>
     </div>
 </ol>
 </div>
@@ -703,10 +704,10 @@ The <code>preload</code> hint can be generated both by the application and an op
 
 <h3 class="heading settled heading" data-level=2.3 id=prefetch><span class=secno>2.3 </span><span class=content>Prefetch</span><a class=self-link href=#prefetch></a></h3>
 
-<p>The <code>prefetch</code> hint is used to indicate the URL and content-type of a resource that is likely to be a required resource when the next action or navigation is triggered. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.</p>
+<p>The <code>prefetch</code> hint is used to indicate the URL and the associated context of a resource that is likely to be a required resource when the next action or navigation is triggered. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.</p>
 
-<pre>&lt;link rel="prefetch" href="//example.com/thankyou.html" type="text/html"&gt;
-&lt;link rel="prefetch" href="//example.com/thankyou.webp" type="image/webp"&gt;
+<pre>&lt;link rel="prefetch" href="//example.com/thankyou.html" context="fetch"&gt;
+&lt;link rel="prefetch" href="//example.com/thankyou.webp" context="image"&gt;
 </pre>
 
 <p>Specified <code>prefetch</code> resources should not negatively impact the performance of the current page:</p>
@@ -714,8 +715,9 @@ The <code>preload</code> hint can be generated both by the application and an op
 <ul>
   <li>The priority of <code>prefetch</code> requests should be lower than that of resources required by the current page.
     <ul>
-      <li>The <code>type</code> attribute specifies the content-type of the resource such that the user agent can set and communicate the right priority value relative to other <code>prefetch</code> resources. If the content-type is missing, the user agent should assign a default low priority to the specified resource.
+      <li>The <code>context</code> attribute allows the user agent to set the <a href=http://fetch.spec.whatwg.org/#concept-request-context>request context</a> (see <a data-biblio-type=informative data-link-type=biblio href=#biblio-fetch title=biblio-fetch>[FETCH]</a>) and communicate the right priority value relative to other <code>prefetch</code> resources. If the context is missing, the user agent should assign a default low priority to the specified resource.
     </ul>
+
   <li>The optimal time to initiate the resource fetch is dependent on the negotiated protocol, users current connectivity profile, available device resources, and other context specific variables. As a result, this decision is deferred to the user agent, which is in the best position to determine the optimal time - e.g. the user agent may decide to wait until all other downloads are finished, or choose to pipeline requests with low priority if the negotiated protocol supports the necessary primitives.
 </ul>
 
@@ -724,7 +726,7 @@ The <code>preload</code> hint can be generated both by the application and an op
 <div class=example>
 The <code>prefetch</code> hint can be used to implement a prefetch strategy that leverages app-specific knowledge about the next navigation.
 
-<p>For example, an image gallery may have knowledge about the likelihood of next photo or page that may be requested by the user. To provide an improved experience the application can ask the user agent to begin fetching required resources before the next navigation is triggered.</p>
+<p>For example, an image gallery may have knowledge about the likelihood of the next photo or page that may be requested by the user. To provide an improved experience the application can ask the user agent to begin fetching required resources before the next navigation is triggered.</p>
 
 <p>Alternatively, instead of anticipating user activity, the application can react to user input and dynamically schedule prefetch requests based on its knowledge of resources that will be required by the next navigation target - i.e. the application may capture a click event and provide <code>prefetch</code> hints to the user agent before the current page is unloaded.
 </div><p></p>
@@ -766,7 +768,7 @@ The <code>prerender</code> hint can be used by the application to signal high-li
 
 <p class=note>Note: The above examples are not an exhaustive list. The decision which strategies to implement and how to enforce them is deferred to the user agent. For a hands-on example, see <a href=http://www.chromium.org/developers/design-documents/prerender>Chromium prerendering</a> wiki page.</p>
 
-<p>To ensure compatibility and improve success rate of prerender requests the target page should use the <a data-biblio-type=informative data-link-type=biblio href=#biblio-page-visibility title=biblio-page-visibility>[PAGE-VISIBILITY]</a> to determine the visibility state of the page as it is being rendered and implement appropriate logic to avoid actions that may cause the prerender to be abandoned (e.g. non-idempotent requests), or unwanted side-effects from being triggered (e.g. analytics beacons firing prior to the page being displayed).</p>
+<p>To ensure compatibility and improve the success rate of prerender requests the target page should use the <a data-biblio-type=informative data-link-type=biblio href=#biblio-page-visibility title=biblio-page-visibility>[PAGE-VISIBILITY]</a> to determine the visibility state of the page as it is being rendered and implement appropriate logic to avoid actions that may cause the prerender to be abandoned (e.g. non-idempotent requests), or unwanted side-effects from being triggered (e.g. analytics beacons firing prior to the page being displayed).</p>
 
 
 <h2 class="heading settled heading" data-level=3 id=processing><span class=secno>3 </span><span class=content>Processing model</span><a class=self-link href=#processing></a></h2>
@@ -793,13 +795,13 @@ The <code>prerender</code> hint can be used by the application to signal high-li
 
 <p>In addition to the hints specified in the document markup, the application may have runtime resource hints based on user context or other signals. The user agent should process dynamically inserted resource hints in addition to and in the same way as document specified hints.</p>
 
-<pre>&lt;!-- insert new prerender hint --&gt;
+<pre>// insert new prerender hint
 var hint = document.createElement("link")
 hint.setAttribute("rel", "prerender")
 hint.setAttribute("href", "/article/part3.html")
 document.getElementsByTagName("head")[0].appendChild(hint)
 
-&lt;!-- cancel prerender --&gt;
+// cancel prerender
 document.getElementsByTagName("head")[0].removeChild(hint);
 </pre>
 
@@ -811,8 +813,8 @@ document.getElementsByTagName("head")[0].removeChild(hint);
 <p>The user agent should process resource hints specified via the <a href=http://tools.ietf.org/html/rfc5988><code>Link</code> HTTP header</a>.</p>
 
 <pre>Link: &lt;https://example.com&gt;; rel=preconnect
-Link: &lt;https://example.com/font.woff&gt;; rel=preload; type=font/woff
-Link: &lt;https://example.com/thankyou.html&gt;; rel=prefetch; type=text/html
+Link: &lt;https://example.com/font.woff&gt;; rel=preload; context=font
+Link: &lt;https://example.com/thankyou.html&gt;; rel=prefetch; context=fetch
 Link: &lt;https://example.com/article/part2.html&gt;; rel=prerender
 </pre>
 
@@ -837,6 +839,16 @@ Delivering resource hints via <code>Link</code> header allows automated optimiza
 <div class=example>
 A JavaScript resource is fetched via <code>preload</code> and the response contains a <code>no-cache</code> directive. The fetched response is retained by the user agent and is immediately returned when a matching request is dispatched at a later time - e.g. via a <code>script</code> tag or other means. This ensures that the user agent does not incur an unnecessary revalidation, or a duplicate download, between the initial resource fetch initiated via the specified resource hint and a later request that requires that resource.
 </div>
+
+<h3 class="heading settled heading" data-level=3.5 id=prioritization><span class=secno>3.5 </span><span class=content>Request prioritization</span><a class=self-link href=#prioritization></a></h3>
+
+<p>Resources fetched via <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> have a priority value that is determined via the specified request context and relative priority of the resource hint - e.g. <code>preload</code> initiated requests have higher priority than <code>prefetch</code> requests with the same context. In the case where the same resource has mixed prioritization hints, the user agent should resolve the conflict:</p>
+
+<ul>
+  <li>If the request has not yet been dispatched, the user agent should use the highest specified priority.
+  <li>If the request has been dispatched, and if negotiated protocol supports it, the user agent should update request priority to the highest specified priority.
+</ul>
+
 
 <h2 class="no-ref no-num heading settled heading" id=conformance><span class=content>
 Conformance</span><a class=self-link href=#conformance></a></h2>
@@ -880,6 +892,7 @@ Normative References</span><a class=self-link href=#normative></a></h3>
 <h3 class="no-num no-ref heading settled heading" id=informative><span class=content>
 Informative References</span><a class=self-link href=#informative></a></h3>
 <div data-fill-with=informative-references><dl>
+<dt id=biblio-fetch title=FETCH><a class=self-link href=#biblio-fetch></a>[FETCH]<dd>Anne van Kesteren. <a href=http://fetch.spec.whatwg.org/>Fetch</a>. Living Standard. URL: <a href=http://fetch.spec.whatwg.org/>http://fetch.spec.whatwg.org/</a></dd>
 <dt id=biblio-page-visibility title=PAGE-VISIBILITY><a class=self-link href=#biblio-page-visibility></a>[PAGE-VISIBILITY]<dd>Jatinder Mann; Arvind Jain. <a href=http://www.w3.org/TR/2013/REC-page-visibility-20130514/>Page Visibility</a>. 14 May 2013. W3C Recommendation. URL: <a href=http://www.w3.org/TR/2013/REC-page-visibility-20130514/>http://www.w3.org/TR/2013/REC-page-visibility-20130514/</a></dd>
 </dl></div>
 
