@@ -140,7 +140,7 @@ The user agent should not cancel outstanding <code>prefetch</code> requests when
 <div class="example">
 The <code>prefetch</code> hint can be used to implement a prefetch strategy that leverages app-specific knowledge about the next navigation.
 
-For example, an image gallery may have knowledge about the likelihood of next photo or page that may be requested by the user. To provide an improved experience the application can ask the user agent to begin fetching required resources before the next navigation is triggered.
+For example, an image gallery may have knowledge about the likelihood of the next photo or page that may be requested by the user. To provide an improved experience the application can ask the user agent to begin fetching required resources before the next navigation is triggered.
 
 Alternatively, instead of anticipating user activity, the application can react to user input and dynamically schedule prefetch requests based on its knowledge of resources that will be required by the next navigation target - i.e. the application may capture a click event and provide <code>prefetch</code> hints to the user agent before the current page is unloaded.
 </div>
@@ -183,7 +183,7 @@ Specified <code>prerender</code> target should not negatively impact the perform
 
 Note: The above examples are not an exhaustive list. The decision which strategies to implement and how to enforce them is deferred to the user agent. For a hands-on example, see <a href="http://www.chromium.org/developers/design-documents/prerender">Chromium prerendering</a> wiki page.
 
-To ensure compatibility and improve success rate of prerender requests the target page should use the [[PAGE-VISIBILITY]] to determine the visibility state of the page as it is being rendered and implement appropriate logic to avoid actions that may cause the prerender to be abandoned (e.g. non-idempotent requests), or unwanted side-effects from being triggered (e.g. analytics beacons firing prior to the page being displayed).
+To ensure compatibility and improve the success rate of prerender requests the target page should use the [[PAGE-VISIBILITY]] to determine the visibility state of the page as it is being rendered and implement appropriate logic to avoid actions that may cause the prerender to be abandoned (e.g. non-idempotent requests), or unwanted side-effects from being triggered (e.g. analytics beacons firing prior to the page being displayed).
 
 
 <h2 id="processing">Processing model</h2>
@@ -211,13 +211,13 @@ Note: <code>preload</code> and <code>prefetch</code> hints serve as implicit <co
 In addition to the hints specified in the document markup, the application may have runtime resource hints based on user context or other signals. The user agent should process dynamically inserted resource hints in addition to and in the same way as document specified hints.
 
 <pre>
-  &lt;!-- insert new prerender hint --&gt;
+  // insert new prerender hint
   var hint = document.createElement("link")
   hint.setAttribute("rel", "prerender")
   hint.setAttribute("href", "/article/part3.html")
   document.getElementsByTagName("head")[0].appendChild(hint)
 
-  &lt;!-- cancel prerender --&gt;
+  // cancel prerender
   document.getElementsByTagName("head")[0].removeChild(hint);
 </pre>
 
