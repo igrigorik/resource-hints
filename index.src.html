@@ -81,9 +81,9 @@ The <code>preload</code> hint is used to indicate the URL and the associated con
 
 <pre>
   &lt;link rel="preload" href="//example.com/font.woff" context="font"&gt;
+  &lt;link rel="preload" href="//example.com/logo.webp" context="image"&gt;
   &lt;link rel="preload" href="//example.com/app.js"    context="script"&gt;
-  &lt;link rel="preload" href="//example.com/logo-lores.webp" context="image" media="max-resolution: 2dppx"&gt;
-  &lt;link rel="preload" href="//example.com/logo-hires.webp" context="image" media="min-resolution: 2dppx"&gt;
+  &lt;link rel="preload" href="//example.com/mobile-ui-framework.js" context="script" media="screen and (max-width: 640px)"&gt;
 </pre>
 
 The <code>context</code> attribute allows the user agent to set the <a href="http://fetch.spec.whatwg.org/#concept-request-context">request context</a> (see [[FETCH]]) and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource with the same context. If the context is missing, the user agent should assign a default low priority to the specified resource.
@@ -127,8 +127,8 @@ The <code>prefetch</code> hint is used to indicate the URL and the associated co
 
 <pre>
   &lt;link rel="prefetch" href="//example.com/thankyou.html" context="fetch"&gt;
-  &lt;link rel="prefetch" href="//example.com/ty-small.webp" context="image" media="max-width: 640px"&gt;
-  &lt;link rel="prefetch" href="//example.com/ty-large.webp" context="image" media="min-width: 640px"&gt;
+  &lt;link rel="prefetch" href="//example.com/ty-small.webp" context="image" media="(max-width: 640px)"&gt;
+  &lt;link rel="prefetch" href="//example.com/ty-large.webp" context="image" media="(min-width: 641px)"&gt;
 </pre>
 
 Specified <code>prefetch</code> resources should not negatively impact the performance of the current page:
