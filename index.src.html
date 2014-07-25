@@ -77,15 +77,15 @@ Note that this behavior requires ability to dynamically inject a preconnect hint
 
 <h3 id="preload">Preload</h3>
 
-The <code>preload</code> hint is used to indicate the URL and content-type of a resource that should be fetched as early as possible by the user agent. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.
+The <code>preload</code> hint is used to indicate the URL and the associated context of a resource that should be fetched as early as possible by the user agent. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.
 
 <pre>
-  &lt;link rel="preload" href="//example.com/font.woff" type="font/woff"&gt;
-  &lt;link rel="preload" href="//example.com/logo.webp" type="image/webp"&gt;
-  &lt;link rel="preload" href="//example.com/app.js" type="text/javascript"&gt;
+  &lt;link rel="preload" href="//example.com/font.woff" context="font"&gt;
+  &lt;link rel="preload" href="//example.com/logo.webp" context="image"&gt;
+  &lt;link rel="preload" href="//example.com/app.js"    context="script"&gt;
 </pre>
 
-The <code>type</code> attribute specifies the content-type of the resource such that the user agent can set and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource of the same content-type. If the content-type is missing, the user agent should assign a default low priority to the specified resource.
+The <code>context</code> attribute allows the user agent to set the <a href="http://fetch.spec.whatwg.org/#concept-request-context">request context</a> (see [[FETCH]]) and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource with the same context. If the context is missing, the user agent should assign a default low priority to the specified resource.
 
 <div class="example">
 Speculative parsers do not execute JavaScript and perform a shallow parse of CSS, which means that the fetch of resources specified within JavaScript and CSS is delayed until the document parser is able to process the resource declaration. By using a <code>preload</code> hint the application can declaratively specify which resources the user agent should fetch early to mask the request latency and improve page performance.
@@ -108,9 +108,9 @@ The <code>preload</code> hint can be generated both by the application and an op
     </ul>
 
     <div class="note">
-      Many optimization proxies already implement the "early flush" strategy where references to required resources are delivered to the user agent while the proxy is blocked on the response from the origin. Today, this is typically done by synthesizing a document <code>&lt;head&gt;</code> that contains XHR, image, and object requests. However, in practice, these implementations often result in prioritization conflicts with requests initiated by speculative and document parsers, or worse, result in delayed or double downloads due to missing content-type information.
+      Many optimization proxies already implement the "early flush" strategy where references to required resources are delivered to the user agent while the proxy is blocked on the response from the origin. Today, this is typically done by synthesizing a document <code>&lt;head&gt;</code> that contains XHR, image, and object requests. However, in practice, these implementations often result in prioritization conflicts with requests initiated by speculative and document parsers, or worse, result in delayed or double downloads due to missing context information.
 
-      The <code>preload</code> hint addresses these problems by providing a declarative hint that communicates both the URL and the content-type of the resource.
+      The <code>preload</code> hint addresses these problems by providing a declarative hint that communicates both the URL and the context of the resource.
     </div>
 </ol>
 </div>
@@ -118,11 +118,11 @@ The <code>preload</code> hint can be generated both by the application and an op
 
 <h3 id="prefetch">Prefetch</h3>
 
-The <code>prefetch</code> hint is used to indicate the URL and content-type of a resource that is likely to be a required resource when the next action or navigation is triggered. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.
+The <code>prefetch</code> hint is used to indicate the URL and the associated context of a resource that is likely to be a required resource when the next action or navigation is triggered. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.
 
 <pre>
-  &lt;link rel="prefetch" href="//example.com/thankyou.html" type="text/html"&gt;
-  &lt;link rel="prefetch" href="//example.com/thankyou.webp" type="image/webp"&gt;
+  &lt;link rel="prefetch" href="//example.com/thankyou.html" context="fetch"&gt;
+  &lt;link rel="prefetch" href="//example.com/thankyou.webp" context="image"&gt;
 </pre>
 
 Specified <code>prefetch</code> resources should not negatively impact the performance of the current page:
@@ -130,8 +130,9 @@ Specified <code>prefetch</code> resources should not negatively impact the perfo
 <ul>
   <li>The priority of <code>prefetch</code> requests should be lower than that of resources required by the current page.
     <ul>
-      <li>The <code>type</code> attribute specifies the content-type of the resource such that the user agent can set and communicate the right priority value relative to other <code>prefetch</code> resources. If the content-type is missing, the user agent should assign a default low priority to the specified resource.
+      <li>The <code>context</code> attribute allows the user agent to set the <a href="http://fetch.spec.whatwg.org/#concept-request-context">request context</a> (see [[FETCH]]) and communicate the right priority value relative to other <code>prefetch</code> resources. If the context is missing, the user agent should assign a default low priority to the specified resource.
     </ul>
+
   <li>The optimal time to initiate the resource fetch is dependent on the negotiated protocol, users current connectivity profile, available device resources, and other context specific variables. As a result, this decision is deferred to the user agent, which is in the best position to determine the optimal time - e.g. the user agent may decide to wait until all other downloads are finished, or choose to pipeline requests with low priority if the negotiated protocol supports the necessary primitives.
 </ul>
 
@@ -230,8 +231,8 @@ The user agent should process resource hints specified via the <a href="http://t
 
 <pre>
   Link: &lt;https://example.com&gt;; rel=preconnect
-  Link: &lt;https://example.com/font.woff&gt;; rel=preload; type=font/woff
-  Link: &lt;https://example.com/thankyou.html&gt;; rel=prefetch; type=text/html
+  Link: &lt;https://example.com/font.woff&gt;; rel=preload; context=font
+  Link: &lt;https://example.com/thankyou.html&gt;; rel=prefetch; context=fetch
   Link: &lt;https://example.com/article/part2.html&gt;; rel=prerender
 </pre>
 
