@@ -1,0 +1,9 @@
+{
+  "FETCH": {
+    "authors": [ "Anne van Kesteren" ],
+    "href": "http://fetch.spec.whatwg.org/",
+    "title": "Fetch",
+    "status": "Living Standard",
+    "publisher": "W3C"
+  }
+}
