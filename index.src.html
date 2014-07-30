@@ -257,12 +257,10 @@ Delivering resource hints via <code>Link</code> header allows automated optimiza
 
 <h3 id="matching-request">Matching hint responses with requests</h3>
 
-Resources fetched via <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> are retained by the user agent until they are processed by a matching request from the same navigation context. The user agent may decide to discard the retained response due to resource constraints, a timeout, or other reasons.
-
-Note: the user agent should try to retain the fetched response for at least 300 seconds prior to discarding it.
+Resources fetched via <code>preload</code>, <code>prefetch</code>, and <code>prerender</code> are retained by the user agent until they are fetched with a matching request. The user agent may decide to discard the retained response due to resource constraints, a timeout (recommended, at least 300 seconds), or other reasons.
 
 <div class="example">
-A JavaScript resource is fetched via <code>preload</code> and the response contains a <code>no-cache</code> directive. The fetched response is retained by the user agent and is immediately returned when a matching request is dispatched at a later time - e.g. via a <code>script</code> tag or other means. This ensures that the user agent does not incur an unnecessary revalidation, or a duplicate download, between the initial resource fetch initiated via the specified resource hint and a later request that requires that resource.
+A JavaScript resource is fetched via <code>preload</code> and the response contains a <code>no-cache</code> directive. The fetched response is retained by the user agent and is immediately returned when fetched with a matching request at a later time - e.g. via a <code>script</code> tag or other means. This ensures that the user agent does not incur an unnecessary revalidation, or a duplicate download, between the initial resource fetch initiated via the specified resource hint and a later fetch requesting the same resource.
 </div>
 
 <h3 id="prioritization">Request prioritization</h3>
