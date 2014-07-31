@@ -547,7 +547,7 @@ span.issue, span.note {
   <p data-fill-with=logo></p>
   <h1 class="p-name no-ref" id=title>Resource Hints</h1>
   <h2 class="no-num no-toc no-ref heading settled heading" id=subtitle><span class=content>Editor’s Draft,
-    <span class=dt-updated><span class=value-title title=20140730>30 July 2014</span></span></span></h2>
+    <span class=dt-updated><span class=value-title title=20140731>31 July 2014</span></span></span></h2>
   <div data-fill-with=spec-metadata><dl>
 	<dt>This version:
 	<dd><a class=u-url href=https://igrigorik.github.io/resource-hints/>https://igrigorik.github.io/resource-hints/</a>
@@ -559,7 +559,7 @@ span.issue, span.note {
   <p class=copyright data-fill-with=copyright><a href=http://creativecommons.org/publicdomain/zero/1.0/ rel=license><img alt=CC0 src=https://i.creativecommons.org/p/zero/1.0/80x15.png></a>
 To the extent possible under law, the editors have waived all copyright
 and related or neighboring rights to this work.
-In addition, as of 30 July 2014,
+In addition, as of 31 July 2014,
 the editors have made this specification available under the
 <a href=http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0 rel=license>Open Web Foundation Agreement Version 1.0</a>,
 which is available at http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0.
@@ -827,6 +827,8 @@ Delivering resource hints via <code>Link</code> header allows automated optimiza
 <div class=example>
 A JavaScript resource is fetched via <code>preload</code> and the response contains a <code>no-cache</code> directive. The fetched response is retained by the user agent and is immediately returned when fetched with a matching request at a later time - e.g. via a <code>script</code> tag or other means. This ensures that the user agent does not incur an unnecessary revalidation, or a duplicate download, between the initial resource fetch initiated via the specified resource hint and a later fetch requesting the same resource.
 </div>
+
+<p class=note>Note: request matching and de-duplication are not well defined and implementation varies between user agents (e.g. <a href=https://groups.google.com/a/chromium.org/forum/#!msg/net-dev/cFhaIoJCRFg/3JX9lPWnDPIJ>chromium logic</a>). This should be fixed, but it is out of scope of this specification.</p>
 
 
 <h3 class="heading settled heading" data-level=3.5 id=prioritization><span class=secno>3.5 </span><span class=content>Request prioritization</span><a class=self-link href=#prioritization></a></h3>
