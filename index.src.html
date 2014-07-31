@@ -246,6 +246,8 @@ Resources fetched via <code>preload</code> and <code>prerender</code> are retain
 A JavaScript resource is fetched via <code>preload</code> and the response contains a <code>no-cache</code> directive. The fetched response is retained by the user agent and is immediately returned when fetched with a matching request at a later time - e.g. via a <code>script</code> tag or other means. This ensures that the user agent does not incur an unnecessary revalidation, or a duplicate download, between the initial resource fetch initiated via the specified resource hint and a later fetch requesting the same resource.
 </div>
 
+Note: request matching and de-duplication are not well defined and implementation varies between user agents (e.g. <a href="https://groups.google.com/a/chromium.org/forum/#!msg/net-dev/cFhaIoJCRFg/3JX9lPWnDPIJ">chromium logic</a>). This should be fixed, but it is out of scope of this specification.
+
 
 <h3 id="prioritization">Request prioritization</h3>
 
