@@ -127,7 +127,7 @@ The <code>preload</code> hint can be generated both by the application and an op
 
 <h3 id="prerender">Prerender</h3>
 
-The <code>prerender</code> hint is used to indicate the URL and the context of a resource that may be required by the next navigation. Initiating an early fetch of the specified resource allows the user agent to mask the request latency, and optional preprocessing of the fetched response allows the user agent to deliver an experience of instant delivery and execution once the resource is requested.
+The <code>prerender</code> hint is used to indicate the URL and the context of a resource required by the next navigation. Initiating an early fetch of the specified resource allows the user agent to mask the request latency, and optional preprocessing of the fetched response allows the user agent to deliver an experience of instant delivery and execution once the resource is requested.
 
 <pre>
   &lt;link rel="prerender" href="//example.com/thankyou.html" context="internal"&gt;
@@ -137,7 +137,7 @@ The <code>prerender</code> hint is used to indicate the URL and the context of a
 
 Note: <code>prerender</code> is not restricted to HTML and may be used to load and preprocess any content-type.
 
-The user agent may perform appropriate preprocessing depending on the type and context of the fetched response - e.g. decode an image, parse the HTML markup, parse the HTML markup and initiate fetches for critical subresources, and so on. The decision for which preprocessing steps are performed is deferred to the user agent such that it can account for local resource availability, user preferences, and other runtime factors.
+The user agent may perform appropriate preprocessing depending on the type and context of the fetched response - e.g. decode an image, parse the HTML markup, parse the HTML markup and initiate fetches for critical subresources, and so on. The decision for which preprocessing steps are performed is deferred to the user agent and is a function of runtime context and specified hint priority - see <a section href="#required-vs-speculative-execution"></a>.
 
 Prerendering should not negatively impact the performance of the current navigation context. Due to the need to fetch and optionally preprocess the specified resource and its associated assets, prerendering may result in high contention for CPU, GPU, memory, and network resources. As a result, the user agent may implement various strategies to minimize resource contention based on type and context of fetched response, impose limits on the properties of the resource that is being prerendered, and so on:
 
@@ -184,14 +184,26 @@ Alternatively, instead of anticipating user activity, the application can react 
 
 
 <h2 id="processing">Processing model</h2>
-<h3 id="best-effort-processing">Best-effort processing</h3>
+<h3 id="required-vs-speculative-execution">Required vs. speculative execution</h3>
 
-The presence of a resource hint does not guarantee that the user agent will execute the specified optimization. The decision to invoke the optimization is deferred to the user agent based on page, user, and system contexts.
+In addition to specifying the type of hint, resource URL, and its context, the developer can specify its execution priority: <code>required</code>, <code>high</code>, <code>medium</code>, or <code>low</code>.
 
 <ul>
-  <li>The user agent may decide to execute none, some, or all of the optimizations provided via resource hints, and may also invoke additional optimizations based on its own heuristics.
+  <li><code>required</code> hints must be executed by the user agent.
+  <li><code>high</code>, <code>medium</code>, <code>low</code> are speculative hints that should be processed on a best-effort basis by the user agent.
+  <li>If the priority is omitted, the user agent should use a default priority: <code>low</code>.
+</ul>
 
-  <li>The user agent may decide to execute a partial optimization relative to the specified hint due to resource constraints or other reasons.
+<div class="issue">
+Define syntax on how to expose this enum - see <a href="https://github.com/igrigorik/resource-hints/issues/17">GitHub bug</a>.
+</div>
+
+The decision to execute a speculative hint is a function of two inputs: runtime parameters and context of the user-agent, such as availability of resources and user preference, and developer specified priority indicating the likelihood of that resource being used. The user agent should evaluate these inputs to determine whether the speculative hint should be executed, and how much it is willing to do.
+
+<ul>
+  <li>The user agent may decide to execute none, some, or all of the optimizations provided via a speculative resource hint, and may also invoke additional optimizations based on its own heuristics.
+
+  <li>The user agent may decide to execute a partial optimization relative to the speculative hint due to resource constraints or other reasons.
     <ul>
       <li><code>preconnect</code> may fallback to a partial handshake (DNS only, or DNS+TCP for HTTPS origins).
       <li><code>preload</code> may fallback to <code>preconnect</code> for specified origin.
@@ -199,7 +211,11 @@ The presence of a resource hint does not guarantee that the user agent will exec
     </ul>
 </ul>
 
-Note: <code>preload</code> and <code>prerender</code> hints serve as implicit <code>preconnect</code> hints since a connection is required to fetch the specified resource. Performing a partial optimization allows the user agent to improve performance even if a full optimization cannot be performed.
+<div class="example">
+To optimize the overall user experience the user agent should account for local context and specified priority of a speculative hint. For example, on a resource constrained device the user agent may decide to only execute <code>high</code> priority hints. Alternatively, it may decide to perform partial processing of the hint, such as downgrading <code>preload</code> to a <code>preconnect</code>, a <code>prerender</code> to <code>preload</code>, performing a partial <code>prerender</code>, and so on.
+
+Performing a partial optimization allows the user agent to improve performance even if a full optimization cannot be performed. Conversely, on a device with sufficient resources, the user agent can leverage the available resources to execute as many hints as possible as far as possible.
+</div>
 
 
 <h3 id="dynamic-scheduling">Dynamic scheduling</h3>
