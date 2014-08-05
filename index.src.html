@@ -59,10 +59,6 @@ The optimal number of connections per origin is dependent on the negotiated prot
 
 The user agent should perform the full connection handshake (DNS+TCP for HTTP, and DNS+TCP+TLS for HTTPS origins) whenever possible, but is allowed to elect to perform a partial handshake (DNS only for HTTP, and DNS or DNS+TCP for HTTPS origins), or skip it entirely, due to resource constraints or other reasons.
 
-<div class="note">
-Many existing user agents implement <code>dns-prefetch</code> that only performs the DNS lookup. However, there are no circumstances where a standalone DNS lookup is useful unless you also intend to connect to the specified origin, and further, the bulk of the latency cost remains in the TCP and TLS handshakes. As a result, existing <code>dns-prefetch</code> hints can be treated as <code>preconnect</code> hints.
-</div>
-
 <div class="example">
 The full resource URL may not be known until the page is being constructed by the user agent - e.g. conditional loading logic, UA adaptation, etc. However, the origin from which one or more of these resources will be fetched is often known ahead of time by the developer or the server generating the response. In such cases, a <code>preconnect</code> hint can be used to initiate an early connection handshake such that when the resource URL is determined, the user agent can dispatch the request without first blocking on connection negotiation.
 </div>
