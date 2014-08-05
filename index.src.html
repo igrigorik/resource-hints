@@ -37,7 +37,7 @@ This specification defines <code>preconnect</code>, <code>preload</code>, and <c
 
 <h2 id="resource-hints">Resource Hints</h2>
 
-Resource hints are advisory and are used to assist the user agent in the decision making process of which optimizations can be applied when the page is being loaded, or as the user is interacting with the application.
+Resource hints are used to assist the user agent in the decision making process of which optimizations can be applied when the page is being loaded, or as the user is interacting with the application.
 
 <ul>
   <li><b>Preconnect</b> is used to indicate origins from which resources will be fetched.
@@ -85,10 +85,19 @@ The <code>preload</code> hint is used to indicate the URL and the associated con
   &lt;link rel="preload" href="//example.com/mobile-ui-framework.js" context="script" media="screen and (max-width: 640px)"&gt;
 </pre>
 
+<ul>
+  <li>The user agent should fetch and retain the preloaded response, without executing or processing it, until it is matched with a matching request (see <a section href="#matching-request"></a>).
+  <li>The user agent must not delay the <code>load</code> event of the document unless the preloaded resource is matched with a matching request that blocks the <code>load</code> event.
+</ul>
+
 The <code>context</code> attribute allows the user agent to set the <a href="http://fetch.spec.whatwg.org/#concept-request-context">request context</a> (see [[FETCH]]) and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource with the same context. If the context is missing, the user agent should assign a default low priority to the specified resource.
 
 <div class="note">
 Resource hints are subject to the regular <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#attr-link-media">media query processing rules</a>. The user agent must initiate resource fetch when media attribute's value matches the environment, and must not initiate the fetch otherwise.
+</div>
+
+<div class="example">
+The <code>preload</code> hint can be used by the application to initiate early fetch, but delay processing of the received response - e.g. fetch a CSS stylesheet and apply it at some later time, fetch a JavaScript asset and execute it later, and so on. The <code>preload</code> fetches do not block the document <code>load</code> event and allow the application to determine which resources are applied, when they are executed, and in which order.
 </div>
 
 <div class="example">
