@@ -88,6 +88,10 @@ The <code>preload</code> hint is used to indicate the URL and the associated con
 
 The <code>context</code> attribute allows the user agent to set the <a href="http://fetch.spec.whatwg.org/#concept-request-context">request context</a> (see [[FETCH]]) and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource with the same context. If the context is missing, the user agent should assign a default low priority to the specified resource.
 
+<div class="issue">
+<code>context</code> may not be a perfect fit either - e.g. how do we communicate difference between iframe and iframe+seamless, or prerender that may be initiated through multiple routes (click, window.location, etc). See <a href="https://github.com/igrigorik/resource-hints/issues/6#issuecomment-50738157">GitHub discussion</a>.
+</div>
+
 <div class="note">
 Resource hints are subject to the regular <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#attr-link-media">media query processing rules</a>. The user agent must initiate resource fetch when media attribute's value matches the environment, and must not initiate the fetch otherwise.
 </div>
