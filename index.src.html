@@ -10,7 +10,10 @@ Abstract: This specification defines <code>preconnect</code>, <code>preload</cod
 </pre>
 
 <style>
-#forkongithub a{background:#356b00;color:#fff;text-decoration:none;font-family:arial,sans-serif;text-align:center;font-weight:bold;padding:5px 40px;font-size:1rem;line-height:2rem;position:relative;transition:0.5s;}#forkongithub a:hover{background:#c11;color:#fff;}#forkongithub a::before,#forkongithub a::after{content:"";width:100%;display:block;position:absolute;top:1px;left:0;height:1px;background:#fff;}#forkongithub a::after{bottom:1px;top:auto;}@media screen and (min-width:800px){#forkongithub{position:fixed;display:block;top:0;right:0;width:200px;overflow:hidden;height:200px;z-index:9999;}#forkongithub a{width:200px;position:absolute;top:60px;right:-60px;transform:rotate(45deg);-webkit-transform:rotate(45deg);-ms-transform:rotate(45deg);-moz-transform:rotate(45deg);-o-transform:rotate(45deg);box-shadow:0px 0px 5px rgba(0,0,0,0.6);}}
+#forkongithub a{background:#356b00;color:#fff;text-decoration:none;font-family:arial,sans-serif;text-align:center;font-weight:bold;padding:5px 40px;font-size:1rem;line-height:2rem;position:relative;transition:0.5s;}#forkongithub a:hover{background:#c11;color:#fff;}
+#forkongithub a::before,#forkongithub a::after{content:"";width:100%;display:block;position:absolute;top:1px;left:0;height:1px;background:#fff;}
+#forkongithub a::after{bottom:1px;top:auto;}@media screen and (min-width:800px){#forkongithub{position:fixed;display:block;top:0;right:0;width:200px;overflow:hidden;height:200px;z-index:9999;}
+#forkongithub a{width:200px;position:absolute;top:60px;right:-60px;transform:rotate(45deg);-webkit-transform:rotate(45deg);-ms-transform:rotate(45deg);-moz-transform:rotate(45deg);-o-transform:rotate(45deg);box-shadow:0px 0px 5px rgba(0,0,0,0.6);}}
 </style>
 
 <span id="forkongithub"><a href="https://github.com/igrigorik/resource-hints/issues">Issues &amp; Feedback</a></span>
@@ -190,22 +193,28 @@ Alternatively, instead of anticipating user activity, the application can react 
 <h2 id="processing">Processing model</h2>
 <h3 id="required-vs-speculative-execution">Required vs. speculative execution</h3>
 
-In addition to specifying the type of hint, resource URL, and its context, the developer can specify its execution priority: <code>required</code>, <code>high</code>, <code>medium</code>, or <code>low</code>.
+In addition to specifying the hint type, its fetch options, and the resource URL, the developer can communicate the expected probability that the resource will be used in the current or next navigation context:
+
+<pre>
+  &lt;link rel="preconnect" href="//sub.example.com" probability="0.22"&gt;
+  &lt;link rel="preload" href="//example.com/application.js" probability="0.75"&gt;
+  &lt;link rel="prerender" href="//example.com/thankyou.html" probability="1.0"&gt;
+</pre>
+
+The <code>probability</code> attribute is a float value in the <code>[0.0-1.0]</code> range:
 
 <ul>
-  <li><code>required</code> hints must be executed by the user agent.
-  <li><code>high</code>, <code>medium</code>, <code>low</code> are speculative hints that should be processed on a best-effort basis by the user agent.
-  <li>If the priority is omitted, the user agent should use a default priority: <code>low</code>.
+  <li><strong>Required hint:</strong> a hint with probability of <code>1.0</code> that must be processed by the user agent.
+  <li><strong>Speculative hint:</strong> a hint with probability of <code>&lt;1.0</code> that should be processed by the user agent.
+    <ul>
+      <li>If the <code>probability</code> attribute is omitted, the hint is considered to be a speculative hint and the user agent may use own heuristics to assign a default probability value.
+    </ul>
 </ul>
 
-<div class="issue">
-Define syntax on how to expose this enum - see <a href="https://github.com/igrigorik/resource-hints/issues/17">GitHub bug</a>.
-</div>
-
-The decision to execute a speculative hint is a function of two inputs: runtime parameters and context of the user-agent, such as availability of resources and user preference, and developer specified priority indicating the likelihood of that resource being used. The user agent should evaluate these inputs to determine whether the speculative hint should be executed, and how much it is willing to do.
+Speculative hints are processed on a best effort basis by the user agent based on the runtime context of the user agent &mdash; availability of CPU, GPU, memory, and networking resources &mdash; developer specified probability indicating the likelihood of that resource being used, and specified user preferences.
 
 <ul>
-  <li>The user agent may decide to execute none, some, or all of the optimizations provided via a speculative resource hint, and may also invoke additional optimizations based on its own heuristics.
+  <li>The user agent may decide to execute some, none, or all of the optimizations implied by a speculative resource hint, and may also invoke additional optimizations based on its own heuristics.
 
   <li>The user agent may decide to execute a partial optimization relative to the speculative hint due to resource constraints or other reasons.
     <ul>
@@ -216,9 +225,13 @@ The decision to execute a speculative hint is a function of two inputs: runtime 
 </ul>
 
 <div class="example">
-To optimize the overall user experience the user agent should account for local context and specified priority of a speculative hint. For example, on a resource constrained device the user agent may decide to only execute <code>high</code> priority hints. Alternatively, it may decide to perform partial processing of the hint, such as downgrading <code>preload</code> to a <code>preconnect</code>, a <code>prerender</code> to <code>preload</code>, performing a partial <code>prerender</code>, and so on.
+To optimize the overall user experience the user agent should account for local context and specified probability of a speculative hint. For example, on a resource constrained device the user agent may decide to only execute high probability hints. Alternatively, it may decide to perform partial processing of the hint, such as downgrading <code>preload</code> to a <code>preconnect</code>, a <code>prerender</code> to <code>preload</code>, performing a partial <code>prerender</code>, and so on.
 
-Performing a partial optimization allows the user agent to improve performance even if a full optimization cannot be performed. Conversely, on a device with sufficient resources, the user agent can leverage the available resources to execute as many hints as possible as far as possible.
+Performing a partial optimization allows the user agent to improve performance even if a full optimization cannot be performed. Conversely, on a device with sufficient resources, the user agent may execute all of the specified hints as far as possible.
+</div>
+
+<div class="issue">
+TBD: do we need a carve-out clause for "required prerender hint"? E.g. current browsers allow the user to opt-out from prerender. However, required preconnect and preload hints, which apply to current context, must be respected by the user agent.
 </div>
 
 
@@ -282,4 +295,3 @@ Resources fetched via <code>preload</code> and <code>prerender</code> have a pri
   <li>If the request has not yet been dispatched, the user agent should use the highest specified priority.
   <li>If the request has been dispatched, and if negotiated protocol supports it, the user agent should update request priority to the highest specified priority.
 </ul>
-
