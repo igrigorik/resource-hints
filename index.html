@@ -589,11 +589,12 @@ Parts of this work may be from another specification document.  If so, those par
 		<li><a href=#prerender><span class=secno>2.3</span> Prerender</a></ul>
 	<li><a href=#processing><span class=secno>3</span> Processing model</a>
 		<ul class=toc>
-		<li><a href=#required-vs-speculative-execution><span class=secno>3.1</span> Required vs. speculative execution</a>
-		<li><a href=#dynamic-scheduling><span class=secno>3.2</span> Dynamic scheduling</a>
-		<li><a href=#http-link><span class=secno>3.3</span> Interoperability with HTTP Link header</a>
-		<li><a href=#matching-request><span class=secno>3.4</span> Matching hint responses with requests</a>
-		<li><a href=#prioritization><span class=secno>3.5</span> Request prioritization</a></ul>
+		<li><a href=#fetch-settings><span class=secno>3.1</span> Fetch settings</a>
+		<li><a href=#required-vs-speculative-execution><span class=secno>3.2</span> Required vs. speculative execution</a>
+		<li><a href=#dynamic-scheduling><span class=secno>3.3</span> Dynamic scheduling</a>
+		<li><a href=#http-link><span class=secno>3.4</span> Interoperability with HTTP Link header</a>
+		<li><a href=#matching-request><span class=secno>3.5</span> Matching hint responses with requests</a>
+		<li><a href=#prioritization><span class=secno>3.6</span> Request prioritization</a></ul>
 	<li><a href=#conformance><span class=secno></span>  Conformance</a>
 	<li><a href=#references><span class=secno></span>  References</a>
 		<ul class=toc>
@@ -663,28 +664,24 @@ Many sites rely on redirects for analytics and to anonymize the referrer before 
 
 <h3 class="heading settled" data-level=2.2 id=preload><span class=secno>2.2 </span><span class=content>Preload</span><a class=self-link href=#preload></a></h3>
 
-<p>The <code>preload</code> hint is used to indicate the URL and the associated context of a resource that should be fetched as early as possible by the user agent. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.</p>
+<p>The <code>preload</code> hint is used to indicate the URL of a resource that should be fetched as early as possible by the user agent. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.</p>
 
-<pre>&lt;link rel="preload" href="//example.com/font.woff" context="font"&gt;
-&lt;link rel="preload" href="//example.com/logo.webp" context="image"&gt;
-&lt;link rel="preload" href="//example.com/app.js"    context="script"&gt;
-&lt;link rel="preload" href="//example.com/mobile-ui-framework.js" context="script" media="screen and (max-width: 640px)"&gt;
+<pre>&lt;link rel="preload" href="/assets/font.woff" fetch-settings="{destinationContext: 'font'}"&gt;
+&lt;link rel="preload" href="/assets/logo.webp" fetch-settings="{destinationContext: 'image'}"&gt;
+&lt;link rel="preload" href="//example.com/app.js" fetch-settings="{destinationContext: 'script'}"&gt;
+&lt;link rel="preload" href="//example.com/mobile-ui-framework.js" media="screen and (max-width: 640px)" fetch-settings="{destinationContext: 'script'}"&gt;
 </pre>
 
 <ul>
-  <li>The user agent should fetch and retain the preloaded response, without executing or processing it, until it is matched with a matching request (see <a data-section="" href=#matching-request>§3.4 Matching hint responses with requests</a>).
+  <li>The user agent should fetch and retain the preloaded response, without executing or processing it, until it is matched with a matching request (see <a data-section="" href=#matching-request>§3.5 Matching hint responses with requests</a>).
   <li>The user agent must not delay the <code>load</code> event of the document unless the preloaded resource is matched with a matching request that blocks the <code>load</code> event.
 </ul>
 
-<p>The <code>context</code> attribute allows the user agent to set the <a href=http://fetch.spec.whatwg.org/#concept-request-context>request context</a> (see <a data-biblio-type=informative data-link-type=biblio href=#biblio-fetch title=biblio-FETCH>[FETCH]</a>) and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource with the same context. If the context is missing, the user agent should assign a default low priority to the specified resource.</p>
-
-<div class=issue id=issue-fe75206a><a class=self-link href=#issue-fe75206a></a>
-<code>context</code> may not be a perfect fit either - e.g. how do we communicate difference between iframe and iframe+seamless, or prerender that may be initiated through multiple routes (click, window.location, etc). See <a href=https://github.com/igrigorik/resource-hints/issues/6#issuecomment-50738157>GitHub discussion</a>.
-</div>
-
 <div class=note>
-Resource hints are subject to the regular <a href=http://www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#attr-link-media>media query processing rules</a>. The user agent must initiate resource fetch when media attribute’s value matches the environment, and must not initiate the fetch otherwise.
-</div>
+Note: <code>fetch-settings</code> attribute is used to indicate Fetch request options - see <a data-section="" href=#fetch-settings>§3.1 Fetch settings</a>.
+
+<p>Also, resource hints are subject to regular <a href=http://www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#attr-link-media>media query processing rules</a>: the user agent must initiate resource fetch when media attribute’s value matches the environment, and must not initiate the fetch otherwise.
+</div><p></p>
 
 <div class=example>
 The <code>preload</code> hint can be used by the application to initiate early fetch, but delay processing of the received response - e.g. fetch a CSS stylesheet and apply it at some later time, fetch a JavaScript asset and execute it later, and so on. The <code>preload</code> fetches do not block the document <code>load</code> event and allow the application to determine which resources are applied, when they are executed, and in which order.
@@ -723,14 +720,14 @@ The <code>preload</code> hint can be generated both by the application and an op
 
 <p>The <code>prerender</code> hint is used to indicate the URL and the context of a resource required by the next navigation. Initiating an early fetch of the specified resource allows the user agent to mask the request latency, and optional preprocessing of the fetched response allows the user agent to deliver an experience of instant delivery and execution once the resource is requested.</p>
 
-<pre>&lt;link rel="prerender" href="//example.com/thankyou.html" context="internal"&gt;
-&lt;link rel="prerender" href="//example.com/application.js" context="script"&gt;
-&lt;link rel="prerender" href="//example.com/image.webp" context="image" media="(max-width: 640px)"&gt;
+<pre>&lt;link rel="prerender" href="//example.com/thankyou.html"&gt;
+&lt;link rel="prerender" href="//example.com/application.js" fetch-settings="{destinationContext: 'script'}"&gt;
+&lt;link rel="prerender" href="//example.com/image.webp" media="(max-width: 640px)" fetch-settings="{destinationContext: 'image'}"&gt;
 </pre>
 
 <p class=note>Note: <code>prerender</code> is not restricted to HTML and may be used to load and preprocess any content-type.</p>
 
-<p>The user agent may perform appropriate preprocessing depending on the type and context of the fetched response - e.g. decode an image, parse the HTML markup, parse the HTML markup and initiate fetches for critical subresources, and so on. The decision for which preprocessing steps are performed is deferred to the user agent and is a function of runtime context and specified hint priority - see <a data-section="" href=#required-vs-speculative-execution>§3.1 Required vs. speculative execution</a>.</p>
+<p>The user agent may perform appropriate preprocessing depending on the type and destination context of the response - e.g. decode an image, parse the HTML markup, parse the HTML markup and initiate fetches for critical subresources, and so on. The decision for which preprocessing steps are performed is deferred to the user agent and is a function of runtime context and specified hint probability - see <a data-section="" href=#required-vs-speculative-execution>§3.2 Required vs. speculative execution</a>.</p>
 
 <p>Prerendering should not negatively impact the performance of the current navigation context. Due to the need to fetch and optionally preprocess the specified resource and its associated assets, prerendering may result in high contention for CPU, GPU, memory, and network resources. As a result, the user agent may implement various strategies to minimize resource contention based on type and context of fetched response, impose limits on the properties of the resource that is being prerendered, and so on:</p>
 
@@ -738,10 +735,6 @@ The <code>preload</code> hint can be generated both by the application and an op
    <li>The optimal time to initiate fetch of a <code>prerender</code> resource is dependent on the negotiated protocol, users current connectivity profile, available device resources, and other context specific variables. As a result, this decision is deferred to the user agent, which is in the best position to determine the optimal time - e.g. the user agent may decide to wait until all other downloads are finished, or choose to pipeline requests with low priority if the negotiated protocol supports the necessary primitives.
 
   <li>The priority of <code>prerender</code> requests should be lower than that of resources required by the current navigation context.
-    <ul>
-      <li>The <code>context</code> attribute allows the user agent to set the <a href=http://fetch.spec.whatwg.org/#concept-request-context>request context</a> (see <a data-biblio-type=informative data-link-type=biblio href=#biblio-fetch title=biblio-FETCH>[FETCH]</a>) and communicate the right priority value relative to other <code>prerender</code> resources. If the context is missing, the user agent should assign a default low priority to the specified resource.
-    </ul>
-
   <li>To minimize resource contention the prerendered content may be processed with lower priority.
     <ul>
       <li>The background render may be allocated fewer CPU, GPU, or memory resources.
@@ -777,9 +770,27 @@ The <code>prerender</code> hint can be used to implement a prefetch strategy tha
 
 
 <h2 class="heading settled" data-level=3 id=processing><span class=secno>3 </span><span class=content>Processing model</span><a class=self-link href=#processing></a></h2>
-<h3 class="heading settled" data-level=3.1 id=required-vs-speculative-execution><span class=secno>3.1 </span><span class=content>Required vs. speculative execution</span><a class=self-link href=#required-vs-speculative-execution></a></h3>
+<h3 class="heading settled" data-level=3.1 id=fetch-settings><span class=secno>3.1 </span><span class=content>Fetch settings</span><a class=self-link href=#fetch-settings></a></h3>
 
-<p>In addition to specifying the hint type, its fetch options, and the resource URL, the developer can communicate the expected probability that the resource will be used in the current or next navigation context:</p>
+<p>The <code>fetch-settings</code> attribute contains a JSON string with request initialization options to <a data-biblio-type=informative data-link-type=biblio href=#biblio-fetch title=biblio-FETCH>[FETCH]</a>. The <code>destinationContext</code> option allows the developer to communicate the response <a href=http://fetch.spec.whatwg.org/#concept-request-context>destination context</a>, such that the user agent can initialize the approriate fetch defaults: HTTP headers, request priority, and so on.</p>
+
+<pre>&lt;link rel="preload" href="/assets/font.woff" fetch-settings="{destinationContext: 'font'}"&gt;
+&lt;link rel="preload" href="/assets/logo.webp" fetch-settings="{destinationContext: 'image'}"&gt;
+&lt;link rel="preload" href="//example.com/widget"
+</pre>
+
+<ul>
+  <li>Fetch defaults initialized by the user agent via <code>destinationContext</code> must match the default settings set by the user agent when processing a resource with the same context - this is necessary to guarantee correct prioritization and request matching (see <a data-section="" href=#matching-request>§3.5 Matching hint responses with requests</a>).
+  <li>If the <code>destinationContext</code> option is missing, the user agent should assign a default context.
+</ul>
+
+<div class=note>
+Note: fetch <code>sourceContext</code> should match the hint type - i.e. <code>preload</code>, <code>prerender</code>. The <code>preconnect</code> hint does not initiate a resource fetch and hence does not have a source or destination context.
+</div>
+
+<h3 class="heading settled" data-level=3.2 id=required-vs-speculative-execution><span class=secno>3.2 </span><span class=content>Required vs. speculative execution</span><a class=self-link href=#required-vs-speculative-execution></a></h3>
+
+<p>In addition to specifying the hint type, its fetch parameters, and the resource URL, the developer can communicate the expected probability that the resource will be used in the current or next navigation context.</p>
 
 <pre>&lt;link rel="preconnect" href="//sub.example.com" probability="0.22"&gt;
 &lt;link rel="preload" href="//example.com/application.js" probability="0.75"&gt;
@@ -820,7 +831,7 @@ TBD: do we need a carve-out clause for "required prerender hint"? E.g. current b
 </div>
 
 
-<h3 class="heading settled" data-level=3.2 id=dynamic-scheduling><span class=secno>3.2 </span><span class=content>Dynamic scheduling</span><a class=self-link href=#dynamic-scheduling></a></h3>
+<h3 class="heading settled" data-level=3.3 id=dynamic-scheduling><span class=secno>3.3 </span><span class=content>Dynamic scheduling</span><a class=self-link href=#dynamic-scheduling></a></h3>
 
 <p>In addition to the hints specified in the document markup, the application may have runtime resource hints based on user context or other signals. The user agent should process dynamically inserted resource hints in addition to and in the same way as document specified hints.</p>
 
@@ -836,14 +847,14 @@ document.getElementsByTagName("head")[0].removeChild(hint);
 <p>The removal of the hint from the document should cancel the optimization if it is being processed and prevent it from executing if it has not yet been invoked.</p>
 
 
-<h3 class="heading settled" data-level=3.3 id=http-link><span class=secno>3.3 </span><span class=content>Interoperability with HTTP Link header</span><a class=self-link href=#http-link></a></h3>
+<h3 class="heading settled" data-level=3.4 id=http-link><span class=secno>3.4 </span><span class=content>Interoperability with HTTP Link header</span><a class=self-link href=#http-link></a></h3>
 
 <p>The user agent should process resource hints specified via the <a href=http://tools.ietf.org/html/rfc5988><code>Link</code> HTTP header</a>.</p>
 
 <pre>Link: &lt;https://example.com&gt;; rel=preconnect
-Link: &lt;https://example.com/font.woff&gt;; rel=preload; context=font
+Link: &lt;https://example.com/font.woff&gt;; rel=preload; context={destinationContext:'font'}
 Link: &lt;https://example.com/article/part2.html&gt;; rel=prerender
-Link: &lt;https://example.com/logo-hires.html&gt;; rel=prerender; context=image; media=min-resolution:2dppx
+Link: &lt;https://example.com/logo-hires.jpg&gt;; rel=prerender; context={destinationContext:'image'}; media=min-resolution:2dppx
 </pre>
 
 <p>The application may provide one or more of the same type of hint via multiple HTTP headers or via a comma separated list. The user agent should process such hints in addition to and in the same way as document specified and dynamically scheduled resource hints.</p>
@@ -858,7 +869,7 @@ Delivering resource hints via <code>Link</code> header allows automated optimiza
 </div>
 
 
-<h3 class="heading settled" data-level=3.4 id=matching-request><span class=secno>3.4 </span><span class=content>Matching hint responses with requests</span><a class=self-link href=#matching-request></a></h3>
+<h3 class="heading settled" data-level=3.5 id=matching-request><span class=secno>3.5 </span><span class=content>Matching hint responses with requests</span><a class=self-link href=#matching-request></a></h3>
 
 <p>Resources fetched via <code>preload</code> and <code>prerender</code> are retained by the user agent until they are fetched with a matching request. The user agent may decide to discard the retained response due to resource constraints, a timeout (recommended, at least 300 seconds), or other reasons.</p>
 
@@ -869,9 +880,9 @@ A JavaScript resource is fetched via <code>preload</code> and the response conta
 <p class=note>Note: "matching" is not currently defined or interoperable across user agents. This should be fixed, but it is out of scope of this specification. For further discussion see <a href=https://github.com/igrigorik/resource-hints/issues/5>this bug</a> and <a href=https://groups.google.com/a/chromium.org/forum/#!msg/net-dev/cFhaIoJCRFg/3JX9lPWnDPIJ>chromium discussion</a>.</p>
 
 
-<h3 class="heading settled" data-level=3.5 id=prioritization><span class=secno>3.5 </span><span class=content>Request prioritization</span><a class=self-link href=#prioritization></a></h3>
+<h3 class="heading settled" data-level=3.6 id=prioritization><span class=secno>3.6 </span><span class=content>Request prioritization</span><a class=self-link href=#prioritization></a></h3>
 
-<p>Resources fetched via <code>preload</code> and <code>prerender</code> have a priority value that is determined via the specified request context and relative priority of the resource hint - i.e. <code>preload</code> initiated requests have higher priority than <code>prerender</code> requests with the same context. In the case where the same resource has mixed prioritization hints, the user agent should resolve the conflict:</p>
+<p>Resources fetched via <code>preload</code> and <code>prerender</code> have a priority value that is determined via the specified destination request context and relative priority of the resource hint - i.e. <code>preload</code> initiated requests have higher priority than <code>prerender</code> requests with the same context. In the case where the same resource has mixed prioritization hints, the user agent should resolve the conflict:</p>
 
 <ul>
   <li>If the request has not yet been dispatched, the user agent should use the highest specified priority.
@@ -936,7 +947,5 @@ Property index</span><a class=self-link href=#property-index></a></h2>
 
 
 <h2 class="no-num heading settled" id=issues-index><span class=content>Issues Index</span><a class=self-link href=#issues-index></a></h2><div style="counter-reset: issue"><div class=issue>
-<code>context</code> may not be a perfect fit either - e.g. how do we communicate difference between iframe and iframe+seamless, or prerender that may be initiated through multiple routes (click, window.location, etc). See <a href=https://github.com/igrigorik/resource-hints/issues/6#issuecomment-50738157>GitHub discussion</a>.
-<a href=#issue-fe75206a> ↵ </a></div><div class=issue>
 TBD: do we need a carve-out clause for "required prerender hint"? E.g. current browsers allow the user to opt-out from prerender. However, required preconnect and preload hints, which apply to current context, must be respected by the user agent.
 <a href=#issue-3513fe95> ↵ </a></div></div>
