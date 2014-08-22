@@ -56,7 +56,7 @@ h2 + h3, h3 + h4, h4 + h5, h5 + h6 { margin-top: 1.2em; }
 p.copyright { font-size: small; }
 p.copyright small { font-size: small; }
 
-pre { margin: 1em 0 1em 2em; }
+pre { margin: 1em 0 1em 2em; overflow: auto; }
 pre, code, .idl-code {
   font-size: .9em;
   font-family: Menlo, Consolas, "DejaVu Sans Mono", monospace;
@@ -79,6 +79,8 @@ dt { font-weight: bold; }
 dd { margin: 0 0 1em 2em; }
 ul, ol { margin-left: 0; padding-left: 2em; }
 li { margin: 0.25em 2em 0.5em 0; padding-left: 0; }
+[data-md] > :first-child { margin-top: 0; }
+[data-md] > :last-child { margin-bottom: 0; }
 
 td.pre {
   white-space: pre-wrap;
@@ -538,7 +540,10 @@ span.issue, span.note {
 }
   </style>
 <style>
-#forkongithub a{background:#356b00;color:#fff;text-decoration:none;font-family:arial,sans-serif;text-align:center;font-weight:bold;padding:5px 40px;font-size:1rem;line-height:2rem;position:relative;transition:0.5s;}#forkongithub a:hover{background:#c11;color:#fff;}#forkongithub a::before,#forkongithub a::after{content:"";width:100%;display:block;position:absolute;top:1px;left:0;height:1px;background:#fff;}#forkongithub a::after{bottom:1px;top:auto;}@media screen and (min-width:800px){#forkongithub{position:fixed;display:block;top:0;right:0;width:200px;overflow:hidden;height:200px;z-index:9999;}#forkongithub a{width:200px;position:absolute;top:60px;right:-60px;transform:rotate(45deg);-webkit-transform:rotate(45deg);-ms-transform:rotate(45deg);-moz-transform:rotate(45deg);-o-transform:rotate(45deg);box-shadow:0px 0px 5px rgba(0,0,0,0.6);}}
+#forkongithub a{background:#356b00;color:#fff;text-decoration:none;font-family:arial,sans-serif;text-align:center;font-weight:bold;padding:5px 40px;font-size:1rem;line-height:2rem;position:relative;transition:0.5s;}#forkongithub a:hover{background:#c11;color:#fff;}
+#forkongithub a::before,#forkongithub a::after{content:"";width:100%;display:block;position:absolute;top:1px;left:0;height:1px;background:#fff;}
+#forkongithub a::after{bottom:1px;top:auto;}@media screen and (min-width:800px){#forkongithub{position:fixed;display:block;top:0;right:0;width:200px;overflow:hidden;height:200px;z-index:9999;}
+#forkongithub a{width:200px;position:absolute;top:60px;right:-60px;transform:rotate(45deg);-webkit-transform:rotate(45deg);-ms-transform:rotate(45deg);-moz-transform:rotate(45deg);-o-transform:rotate(45deg);box-shadow:0px 0px 5px rgba(0,0,0,0.6);}}
 </style>
 
 </head>
@@ -546,8 +551,8 @@ span.issue, span.note {
 <div class=head>
   <p data-fill-with=logo></p>
   <h1 class="p-name no-ref" id=title>Resource Hints</h1>
-  <h2 class="no-num no-toc no-ref heading settled heading" id=subtitle><span class=content>Editor’s Draft,
-    <span class=dt-updated><span class=value-title title=20140805>5 August 2014</span></span></span></h2>
+  <h2 class="no-num no-toc no-ref heading settled" id=subtitle><span class=content>Editor’s Draft,
+    <span class=dt-updated><span class=value-title title=20140822>22 August 2014</span></span></span></h2>
   <div data-fill-with=spec-metadata><dl>
 	<dt>This version:
 	<dd><a class=u-url href=https://igrigorik.github.io/resource-hints/>https://igrigorik.github.io/resource-hints/</a>
@@ -559,7 +564,7 @@ span.issue, span.note {
   <p class=copyright data-fill-with=copyright><a href=http://creativecommons.org/publicdomain/zero/1.0/ rel=license><img alt=CC0 src=https://i.creativecommons.org/p/zero/1.0/80x15.png></a>
 To the extent possible under law, the editors have waived all copyright
 and related or neighboring rights to this work.
-In addition, as of 5 August 2014,
+In addition, as of 22 August 2014,
 the editors have made this specification available under the
 <a href=http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0 rel=license>Open Web Foundation Agreement Version 1.0</a>,
 which is available at http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0.
@@ -568,13 +573,13 @@ Parts of this work may be from another specification document.  If so, those par
   <hr title="Separator for header">
 </div>
 
-<h2 class="no-num no-toc no-ref heading settled heading" id=abstract><span class=content>Abstract</span></h2>
+<h2 class="no-num no-toc no-ref heading settled" id=abstract><span class=content>Abstract</span></h2>
 <div class=p-summary data-fill-with=abstract><p>This specification defines <code>preconnect</code>, <code>preload</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the user agent in the decision process of which origins it should connect to, which resources it should fetch to improve performance, and which resources may be required by the next navigation.</p>
 
 </div>
 <div data-fill-with=at-risk></div>
 
-<h2 class="no-num no-toc no-ref heading settled heading" id=contents><span class=content>Table of Contents</span></h2>
+<h2 class="no-num no-toc no-ref heading settled" id=contents><span class=content>Table of Contents</span></h2>
 <div data-fill-with=table-of-contents><ul class=toc>
 	<li><a href=#intro><span class=secno>1</span> Introduction</a>
 	<li><a href=#resource-hints><span class=secno>2</span> Resource Hints</a>
@@ -600,11 +605,10 @@ Parts of this work may be from another specification document.  If so, those par
 
 
 
-
 <p><span id=forkongithub><a href=https://github.com/igrigorik/resource-hints/issues>Issues &amp; Feedback</a></span></p>
 
 
-<h2 class="heading settled heading" data-level=1 id=intro><span class=secno>1 </span><span class=content>Introduction</span><a class=self-link href=#intro></a></h2>
+<h2 class="heading settled" data-level=1 id=intro><span class=secno>1 </span><span class=content>Introduction</span><a class=self-link href=#intro></a></h2>
 
 <p>Modern browsers leverage a wide variety of speculative optimization techniques to anticipate user input and intent, which allows them to hide some of the networking, processing, and rendering latencies: preconnects, early fetching of resources, and prefetching and processing of resources for subsequent navigation.</p>
 
@@ -623,7 +627,7 @@ Parts of this work may be from another specification document.  If so, those par
 <p>This specification defines <code>preconnect</code>, <code>preload</code>, and <code>prerender</code> hints that the developer, or the server generating or delivering the resources, can use in an interoperable way to assist the user agent in the decision process of which origins it should connect to, which resources it should fetch to improve performance, and which resources may be required by the next navigation.</p>
 
 
-<h2 class="heading settled heading" data-level=2 id=resource-hints><span class=secno>2 </span><span class=content>Resource Hints</span><a class=self-link href=#resource-hints></a></h2>
+<h2 class="heading settled" data-level=2 id=resource-hints><span class=secno>2 </span><span class=content>Resource Hints</span><a class=self-link href=#resource-hints></a></h2>
 
 <p>Resource hints are used to assist the user agent in the decision making process of which optimizations can be applied when the page is being loaded, or as the user is interacting with the application.</p>
 
@@ -634,7 +638,7 @@ Parts of this work may be from another specification document.  If so, those par
 </ul>
 
 
-<h3 class="heading settled heading" data-level=2.1 id=preconnect><span class=secno>2.1 </span><span class=content>Preconnect</span><a class=self-link href=#preconnect></a></h3>
+<h3 class="heading settled" data-level=2.1 id=preconnect><span class=secno>2.1 </span><span class=content>Preconnect</span><a class=self-link href=#preconnect></a></h3>
 
 <p>The <code>preconnect</code> hint is used to indicate an origin that will be used to fetch required resources. Initiating an early connection, which includes the DNS lookup, TCP handshake, and optional TLS negotiation, allows the user agent to mask the high costs of connection establishment latency.</p>
 
@@ -657,7 +661,7 @@ Many sites rely on redirects for analytics and to anonymize the referrer before 
 </div><p></p>
 
 
-<h3 class="heading settled heading" data-level=2.2 id=preload><span class=secno>2.2 </span><span class=content>Preload</span><a class=self-link href=#preload></a></h3>
+<h3 class="heading settled" data-level=2.2 id=preload><span class=secno>2.2 </span><span class=content>Preload</span><a class=self-link href=#preload></a></h3>
 
 <p>The <code>preload</code> hint is used to indicate the URL and the associated context of a resource that should be fetched as early as possible by the user agent. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.</p>
 
@@ -672,7 +676,7 @@ Many sites rely on redirects for analytics and to anonymize the referrer before 
   <li>The user agent must not delay the <code>load</code> event of the document unless the preloaded resource is matched with a matching request that blocks the <code>load</code> event.
 </ul>
 
-<p>The <code>context</code> attribute allows the user agent to set the <a href=http://fetch.spec.whatwg.org/#concept-request-context>request context</a> (see <a data-biblio-type=informative data-link-type=biblio href=#biblio-fetch title=biblio-fetch>[FETCH]</a>) and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource with the same context. If the context is missing, the user agent should assign a default low priority to the specified resource.</p>
+<p>The <code>context</code> attribute allows the user agent to set the <a href=http://fetch.spec.whatwg.org/#concept-request-context>request context</a> (see <a data-biblio-type=informative data-link-type=biblio href=#biblio-fetch title=biblio-FETCH>[FETCH]</a>) and communicate the right priority value when the request is initiated. The priority is set by the user agent and must match the priority value set by the document or speculative parsers when processing a resource with the same context. If the context is missing, the user agent should assign a default low priority to the specified resource.</p>
 
 <div class=issue id=issue-fe75206a><a class=self-link href=#issue-fe75206a></a>
 <code>context</code> may not be a perfect fit either - e.g. how do we communicate difference between iframe and iframe+seamless, or prerender that may be initiated through multiple routes (click, window.location, etc). See <a href=https://github.com/igrigorik/resource-hints/issues/6#issuecomment-50738157>GitHub discussion</a>.
@@ -709,13 +713,13 @@ The <code>preload</code> hint can be generated both by the application and an op
     <div class=note>
       Many optimization proxies already implement the "early flush" strategy where references to required resources are delivered to the user agent while the proxy is blocked on the response from the origin. Today, this is typically done by synthesizing a document <code>&lt;head&gt;</code> that contains XHR, image, and object requests. However, in practice, these implementations often result in prioritization conflicts with requests initiated by speculative and document parsers, or worse, result in delayed or double downloads due to missing context information.
 
-<p>The <code>preload</code> hint addresses these problems by providing a declarative hint that communicates both the URL and the context of the resource.</p>
-    </div>
+<p>The <code>preload</code> hint addresses these problems by providing a declarative hint that communicates both the URL and the context of the resource.
+    </div><p></p>
 </ol>
 </div>
 
 
-<h3 class="heading settled heading" data-level=2.3 id=prerender><span class=secno>2.3 </span><span class=content>Prerender</span><a class=self-link href=#prerender></a></h3>
+<h3 class="heading settled" data-level=2.3 id=prerender><span class=secno>2.3 </span><span class=content>Prerender</span><a class=self-link href=#prerender></a></h3>
 
 <p>The <code>prerender</code> hint is used to indicate the URL and the context of a resource required by the next navigation. Initiating an early fetch of the specified resource allows the user agent to mask the request latency, and optional preprocessing of the fetched response allows the user agent to deliver an experience of instant delivery and execution once the resource is requested.</p>
 
@@ -735,7 +739,7 @@ The <code>preload</code> hint can be generated both by the application and an op
 
   <li>The priority of <code>prerender</code> requests should be lower than that of resources required by the current navigation context.
     <ul>
-      <li>The <code>context</code> attribute allows the user agent to set the <a href=http://fetch.spec.whatwg.org/#concept-request-context>request context</a> (see <a data-biblio-type=informative data-link-type=biblio href=#biblio-fetch title=biblio-fetch>[FETCH]</a>) and communicate the right priority value relative to other <code>prerender</code> resources. If the context is missing, the user agent should assign a default low priority to the specified resource.
+      <li>The <code>context</code> attribute allows the user agent to set the <a href=http://fetch.spec.whatwg.org/#concept-request-context>request context</a> (see <a data-biblio-type=informative data-link-type=biblio href=#biblio-fetch title=biblio-FETCH>[FETCH]</a>) and communicate the right priority value relative to other <code>prerender</code> resources. If the context is missing, the user agent should assign a default low priority to the specified resource.
     </ul>
 
   <li>To minimize resource contention the prerendered content may be processed with lower priority.
@@ -761,7 +765,7 @@ The <code>preload</code> hint can be generated both by the application and an op
 
 <p>The user agent should not cancel outstanding <code>prerender</code> requests when a new navigation is triggered as they may be required by the next page. However, the user agent may cancel these requests once it determines that they are not required by the new destination.</p>
 
-<p>To ensure compatibility and improve the success rate of <code>prerender</code> requests the target page should use the <a data-biblio-type=informative data-link-type=biblio href=#biblio-page-visibility title=biblio-page-visibility>[PAGE-VISIBILITY]</a> to determine the visibility state of the page as it is being rendered and implement appropriate logic to avoid actions that may cause the <code>prerender</code> to be abandoned (e.g. non-idempotent requests), or unwanted side-effects from being triggered (e.g. analytics beacons firing prior to the page being displayed).</p>
+<p>To ensure compatibility and improve the success rate of <code>prerender</code> requests the target page should use the <a data-biblio-type=informative data-link-type=biblio href=#biblio-page-visibility title=biblio-PAGE-VISIBILITY>[PAGE-VISIBILITY]</a> to determine the visibility state of the page as it is being rendered and implement appropriate logic to avoid actions that may cause the <code>prerender</code> to be abandoned (e.g. non-idempotent requests), or unwanted side-effects from being triggered (e.g. analytics beacons firing prior to the page being displayed).</p>
 
 <div class=example>
 The <code>prerender</code> hint can be used to implement a prefetch strategy that leverages app-specific knowledge about the next navigation based on content, structure, analytics, or other signals - e.g. high-likelihood search results, paginated content or step-driven flows, aggregated analytics or per-user behavior, and so on.
@@ -772,25 +776,30 @@ The <code>prerender</code> hint can be used to implement a prefetch strategy tha
 </div><p></p>
 
 
-<h2 class="heading settled heading" data-level=3 id=processing><span class=secno>3 </span><span class=content>Processing model</span><a class=self-link href=#processing></a></h2>
-<h3 class="heading settled heading" data-level=3.1 id=required-vs-speculative-execution><span class=secno>3.1 </span><span class=content>Required vs. speculative execution</span><a class=self-link href=#required-vs-speculative-execution></a></h3>
+<h2 class="heading settled" data-level=3 id=processing><span class=secno>3 </span><span class=content>Processing model</span><a class=self-link href=#processing></a></h2>
+<h3 class="heading settled" data-level=3.1 id=required-vs-speculative-execution><span class=secno>3.1 </span><span class=content>Required vs. speculative execution</span><a class=self-link href=#required-vs-speculative-execution></a></h3>
 
-<p>In addition to specifying the type of hint, resource URL, and its context, the developer can specify its execution priority: <code>required</code>, <code>high</code>, <code>medium</code>, or <code>low</code>.</p>
+<p>In addition to specifying the hint type, its fetch options, and the resource URL, the developer can communicate the expected probability that the resource will be used in the current or next navigation context:</p>
+
+<pre>&lt;link rel="preconnect" href="//sub.example.com" probability="0.22"&gt;
+&lt;link rel="preload" href="//example.com/application.js" probability="0.75"&gt;
+&lt;link rel="prerender" href="//example.com/thankyou.html" probability="1.0"&gt;
+</pre>
+
+<p>The <code>probability</code> attribute is a float value in the <code>[0.0-1.0]</code> range:</p>
 
 <ul>
-  <li><code>required</code> hints must be executed by the user agent.
-  <li><code>high</code>, <code>medium</code>, <code>low</code> are speculative hints that should be processed on a best-effort basis by the user agent.
-  <li>If the priority is omitted, the user agent should use a default priority: <code>low</code>.
+  <li><strong>Required hint:</strong> a hint with probability of <code>1.0</code> that must be processed by the user agent.
+  <li><strong>Speculative hint:</strong> a hint with probability of <code>&lt;1.0</code> that should be processed by the user agent.
+    <ul>
+      <li>If the <code>probability</code> attribute is omitted, the hint is considered to be a speculative hint and the user agent may use own heuristics to assign a default probability value.
+    </ul>
 </ul>
 
-<div class=issue id=issue-27892a7c><a class=self-link href=#issue-27892a7c></a>
-Define syntax on how to expose this enum - see <a href=https://github.com/igrigorik/resource-hints/issues/17>GitHub bug</a>.
-</div>
-
-<p>The decision to execute a speculative hint is a function of two inputs: runtime parameters and context of the user-agent, such as availability of resources and user preference, and developer specified priority indicating the likelihood of that resource being used. The user agent should evaluate these inputs to determine whether the speculative hint should be executed, and how much it is willing to do.</p>
+<p>Speculative hints are processed on a best effort basis by the user agent based on the runtime context of the user agent — availability of CPU, GPU, memory, and networking resources — developer specified probability indicating the likelihood of that resource being used, and specified user preferences.</p>
 
 <ul>
-  <li>The user agent may decide to execute none, some, or all of the optimizations provided via a speculative resource hint, and may also invoke additional optimizations based on its own heuristics.
+  <li>The user agent may decide to execute some, none, or all of the optimizations implied by a speculative resource hint, and may also invoke additional optimizations based on its own heuristics.
 
   <li>The user agent may decide to execute a partial optimization relative to the speculative hint due to resource constraints or other reasons.
     <ul>
@@ -801,13 +810,17 @@ Define syntax on how to expose this enum - see <a href=https://github.com/igrigo
 </ul>
 
 <div class=example>
-To optimize the overall user experience the user agent should account for local context and specified priority of a speculative hint. For example, on a resource constrained device the user agent may decide to only execute <code>high</code> priority hints. Alternatively, it may decide to perform partial processing of the hint, such as downgrading <code>preload</code> to a <code>preconnect</code>, a <code>prerender</code> to <code>preload</code>, performing a partial <code>prerender</code>, and so on.
+To optimize the overall user experience the user agent should account for local context and specified probability of a speculative hint. For example, on a resource constrained device the user agent may decide to only execute high probability hints. Alternatively, it may decide to perform partial processing of the hint, such as downgrading <code>preload</code> to a <code>preconnect</code>, a <code>prerender</code> to <code>preload</code>, performing a partial <code>prerender</code>, and so on.
 
-<p>Performing a partial optimization allows the user agent to improve performance even if a full optimization cannot be performed. Conversely, on a device with sufficient resources, the user agent can leverage the available resources to execute as many hints as possible as far as possible.
+<p>Performing a partial optimization allows the user agent to improve performance even if a full optimization cannot be performed. Conversely, on a device with sufficient resources, the user agent may execute all of the specified hints as far as possible.
 </div><p></p>
 
+<div class=issue id=issue-3513fe95><a class=self-link href=#issue-3513fe95></a>
+TBD: do we need a carve-out clause for "required prerender hint"? E.g. current browsers allow the user to opt-out from prerender. However, required preconnect and preload hints, which apply to current context, must be respected by the user agent.
+</div>
 
-<h3 class="heading settled heading" data-level=3.2 id=dynamic-scheduling><span class=secno>3.2 </span><span class=content>Dynamic scheduling</span><a class=self-link href=#dynamic-scheduling></a></h3>
+
+<h3 class="heading settled" data-level=3.2 id=dynamic-scheduling><span class=secno>3.2 </span><span class=content>Dynamic scheduling</span><a class=self-link href=#dynamic-scheduling></a></h3>
 
 <p>In addition to the hints specified in the document markup, the application may have runtime resource hints based on user context or other signals. The user agent should process dynamically inserted resource hints in addition to and in the same way as document specified hints.</p>
 
@@ -816,7 +829,6 @@ var hint = document.createElement("link")
 hint.setAttribute("rel", "prerender")
 hint.setAttribute("href", "/article/part3.html")
 document.getElementsByTagName("head")[0].appendChild(hint)
-
 // cancel prerender
 document.getElementsByTagName("head")[0].removeChild(hint);
 </pre>
@@ -824,7 +836,7 @@ document.getElementsByTagName("head")[0].removeChild(hint);
 <p>The removal of the hint from the document should cancel the optimization if it is being processed and prevent it from executing if it has not yet been invoked.</p>
 
 
-<h3 class="heading settled heading" data-level=3.3 id=http-link><span class=secno>3.3 </span><span class=content>Interoperability with HTTP Link header</span><a class=self-link href=#http-link></a></h3>
+<h3 class="heading settled" data-level=3.3 id=http-link><span class=secno>3.3 </span><span class=content>Interoperability with HTTP Link header</span><a class=self-link href=#http-link></a></h3>
 
 <p>The user agent should process resource hints specified via the <a href=http://tools.ietf.org/html/rfc5988><code>Link</code> HTTP header</a>.</p>
 
@@ -846,7 +858,7 @@ Delivering resource hints via <code>Link</code> header allows automated optimiza
 </div>
 
 
-<h3 class="heading settled heading" data-level=3.4 id=matching-request><span class=secno>3.4 </span><span class=content>Matching hint responses with requests</span><a class=self-link href=#matching-request></a></h3>
+<h3 class="heading settled" data-level=3.4 id=matching-request><span class=secno>3.4 </span><span class=content>Matching hint responses with requests</span><a class=self-link href=#matching-request></a></h3>
 
 <p>Resources fetched via <code>preload</code> and <code>prerender</code> are retained by the user agent until they are fetched with a matching request. The user agent may decide to discard the retained response due to resource constraints, a timeout (recommended, at least 300 seconds), or other reasons.</p>
 
@@ -857,7 +869,7 @@ A JavaScript resource is fetched via <code>preload</code> and the response conta
 <p class=note>Note: "matching" is not currently defined or interoperable across user agents. This should be fixed, but it is out of scope of this specification. For further discussion see <a href=https://github.com/igrigorik/resource-hints/issues/5>this bug</a> and <a href=https://groups.google.com/a/chromium.org/forum/#!msg/net-dev/cFhaIoJCRFg/3JX9lPWnDPIJ>chromium discussion</a>.</p>
 
 
-<h3 class="heading settled heading" data-level=3.5 id=prioritization><span class=secno>3.5 </span><span class=content>Request prioritization</span><a class=self-link href=#prioritization></a></h3>
+<h3 class="heading settled" data-level=3.5 id=prioritization><span class=secno>3.5 </span><span class=content>Request prioritization</span><a class=self-link href=#prioritization></a></h3>
 
 <p>Resources fetched via <code>preload</code> and <code>prerender</code> have a priority value that is determined via the specified request context and relative priority of the resource hint - i.e. <code>preload</code> initiated requests have higher priority than <code>prerender</code> requests with the same context. In the case where the same resource has mixed prioritization hints, the user agent should resolve the conflict:</p>
 
@@ -866,8 +878,7 @@ A JavaScript resource is fetched via <code>preload</code> and the response conta
   <li>If the request has been dispatched, and if negotiated protocol supports it, the user agent should update request priority to the highest specified priority.
 </ul>
 
-
-<h2 class="no-ref no-num heading settled heading" id=conformance><span class=content>
+<h2 class="no-ref no-num heading settled" id=conformance><span class=content>
 Conformance</span><a class=self-link href=#conformance></a></h2>
 
     <p>
@@ -880,7 +891,7 @@ Conformance</span><a class=self-link href=#conformance></a></h2>
 
     <p>
         All of the text of this specification is normative
-        except sections explicitly marked as non-normative, examples, and notes. <a data-biblio-type=normative data-link-type=biblio href=#biblio-rfc2119 title=biblio-rfc2119>[RFC2119]</a>
+        except sections explicitly marked as non-normative, examples, and notes. <a data-biblio-type=normative data-link-type=biblio href=#biblio-rfc2119 title=biblio-RFC2119>[RFC2119]</a>
 
     <p>
         Examples in this specification are introduced with the words “for example”
@@ -897,28 +908,28 @@ Conformance</span><a class=self-link href=#conformance></a></h2>
     <p class=note>
         Note, this is an informative note.
 
-<h2 class="no-num no-ref heading settled heading" id=references><span class=content>
+<h2 class="no-num no-ref heading settled" id=references><span class=content>
 References</span><a class=self-link href=#references></a></h2>
 
-<h3 class="no-num no-ref heading settled heading" id=normative><span class=content>
+<h3 class="no-num no-ref heading settled" id=normative><span class=content>
 Normative References</span><a class=self-link href=#normative></a></h3>
 <div data-fill-with=normative-references><dl>
 <dt id=biblio-rfc2119 title=RFC2119><a class=self-link href=#biblio-rfc2119></a>[RFC2119]<dd>S. Bradner. <a href=http://www.ietf.org/rfc/rfc2119.txt>Key words for use in RFCs to Indicate Requirement Levels</a>. URL: <a href=http://www.ietf.org/rfc/rfc2119.txt>http://www.ietf.org/rfc/rfc2119.txt</a></dd>
 </dl></div>
 
-<h3 class="no-num no-ref heading settled heading" id=informative><span class=content>
+<h3 class="no-num no-ref heading settled" id=informative><span class=content>
 Informative References</span><a class=self-link href=#informative></a></h3>
 <div data-fill-with=informative-references><dl>
 <dt id=biblio-fetch title=FETCH><a class=self-link href=#biblio-fetch></a>[FETCH]<dd>Anne van Kesteren. <a href=http://fetch.spec.whatwg.org/>Fetch</a>. Living Standard. URL: <a href=http://fetch.spec.whatwg.org/>http://fetch.spec.whatwg.org/</a></dd>
 <dt id=biblio-page-visibility title=PAGE-VISIBILITY><a class=self-link href=#biblio-page-visibility></a>[PAGE-VISIBILITY]<dd>Jatinder Mann; Arvind Jain. <a href=http://www.w3.org/TR/2013/REC-page-visibility-20130514/>Page Visibility</a>. 14 May 2013. W3C Recommendation. URL: <a href=http://www.w3.org/TR/2013/REC-page-visibility-20130514/>http://www.w3.org/TR/2013/REC-page-visibility-20130514/</a></dd>
 </dl></div>
 
-<h2 class="no-num no-ref heading settled heading" id=index><span class=content>
+<h2 class="no-num no-ref heading settled" id=index><span class=content>
 Index</span><a class=self-link href=#index></a></h2>
 <div data-fill-with=index><ul class=indexlist>
 </ul></div>
 
-<h2 class="no-num no-ref heading settled heading" id=property-index><span class=content>
+<h2 class="no-num no-ref heading settled" id=property-index><span class=content>
 Property index</span><a class=self-link href=#property-index></a></h2>
 <div data-fill-with=property-index><p>No properties defined.</div>
 
@@ -926,10 +937,6 @@ Property index</span><a class=self-link href=#property-index></a></h2>
 
 <h2 class="no-num heading settled" id=issues-index><span class=content>Issues Index</span><a class=self-link href=#issues-index></a></h2><div style="counter-reset: issue"><div class=issue>
 <code>context</code> may not be a perfect fit either - e.g. how do we communicate difference between iframe and iframe+seamless, or prerender that may be initiated through multiple routes (click, window.location, etc). See <a href=https://github.com/igrigorik/resource-hints/issues/6#issuecomment-50738157>GitHub discussion</a>.
-<a href=#issue-fe75206a> ↵ </a></div>
-
-<div class=issue>
-Define syntax on how to expose this enum - see <a href=https://github.com/igrigorik/resource-hints/issues/17>GitHub bug</a>.
-<a href=#issue-27892a7c> ↵ </a></div>
-
-</div>
+<a href=#issue-fe75206a> ↵ </a></div><div class=issue>
+TBD: do we need a carve-out clause for "required prerender hint"? E.g. current browsers allow the user to opt-out from prerender. However, required preconnect and preload hints, which apply to current context, must be respected by the user agent.
+<a href=#issue-3513fe95> ↵ </a></div></div>
