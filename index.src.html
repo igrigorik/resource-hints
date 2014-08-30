@@ -85,12 +85,13 @@ The <code>preload</code> hint is used to indicate the URL of a resource that sho
 </pre>
 
 <ul>
+  <li>The <code>as</code> attribute is used to indicate the resource destination context - see <a section href="#fetch-settings"></a>.
   <li>The user agent should fetch and retain the preloaded response, without executing or processing it, until it is matched with a matching request (see <a section href="#matching-request"></a>).
-  <li>The user agent must not delay the <code>load</code> event of the document unless the preloaded resource is matched with a matching request that blocks the <code>load</code> event.
+  <li>The preloaded response must not delay the <code>load</code> event of the document unless it is matched with a matching request, and the user agent must fire a simple event indicating the status of the fetch attempt (see <a section href="#hint-execution"></a>).
 </ul>
 
 <div class="note">
-Note: <code>as</code> attribute is used to indicate the resource destination context - see <a section href="#fetch-settings"></a>. Also, resource hints are subject to regular <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#attr-link-media">media query processing rules</a>: the user agent must initiate resource fetch when media attribute's value matches the environment, and must not initiate the fetch otherwise.
+Note: resource hints are subject to <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#attr-link-media">media query processing rules</a>: the user agent must initiate resource fetch when media attribute's value matches the environment, and must not initiate the fetch otherwise.
 </div>
 
 <div class="example">
@@ -138,7 +139,7 @@ The <code>prerender</code> hint is used to indicate the URL and the context of a
 
 Note: <code>prerender</code> is not restricted to HTML and may be used to load and preprocess any content-type.
 
-The user agent may perform appropriate preprocessing depending on the type and destination context of the response - e.g. decode an image, parse the HTML markup, parse the HTML markup and initiate fetches for critical subresources, and so on. The decision for which preprocessing steps are performed is deferred to the user agent and is a function of runtime context and specified hint probability - see <a section href="#required-vs-speculative-execution"></a>.
+The user agent may perform appropriate preprocessing depending on the type and destination context of the response - e.g. decode an image, parse the HTML markup, parse the HTML markup and initiate fetches for critical subresources, and so on. The decision for which preprocessing steps are performed is deferred to the user agent and is a function of runtime context and specified hint probability - see <a section href="#required-vs-speculative-hints"></a>.
 
 Prerendering should not negatively impact the performance of the current navigation context. Due to the need to fetch and optionally preprocess the specified resource and its associated assets, prerendering may result in high contention for CPU, GPU, memory, and network resources. As a result, the user agent may implement various strategies to minimize resource contention based on type and context of fetched response, impose limits on the properties of the resource that is being prerendered, and so on:
 
@@ -198,7 +199,7 @@ Specifying the <code>as</code> attribute allows the developer to communicate the
 </ul>
 
 
-<h3 id="required-vs-speculative-execution">Required vs. speculative execution</h3>
+<h3 id="required-vs-speculative-hints">Required vs. speculative hints</h3>
 
 In addition to specifying the hint type, its fetch parameters, and the resource URL, the developer can communicate the expected probability that the resource will be used in the current or next navigation context.
 
@@ -232,13 +233,53 @@ Speculative hints are processed on a best effort basis by the user agent based o
 </ul>
 
 <div class="example">
-To optimize the overall user experience the user agent should account for local context and specified probability of a speculative hint. For example, on a resource constrained device the user agent may decide to only execute high probability hints. Alternatively, it may decide to perform partial processing of the hint, such as downgrading <code>preload</code> to a <code>preconnect</code>, a <code>prerender</code> to <code>preload</code>, performing a partial <code>prerender</code>, and so on.
+To optimize the overall user experience the user agent should account for local context and specified probability of a speculative hint. For example, on a resource constrained device the user agent may decide to only execute high probability hints. Alternatively, it may decide to perform partial processing of the hint, such as downgrading <code>preload</code> to <code>preconnect</code>, <code>prerender</code> to <code>preload</code>, performing a partial <code>prerender</code>, and so on.
 
 Performing a partial optimization allows the user agent to improve performance even if a full optimization cannot be performed. Conversely, on a device with sufficient resources, the user agent may execute all of the specified hints as far as possible.
 </div>
 
 <div class="issue">
 TBD: do we need a carve-out clause for "required prerender hint"? E.g. current browsers allow the user to opt-out from prerender. However, required preconnect and preload hints, which apply to current context, must be respected by the user agent.
+</div>
+
+
+<h3 id="hint-execution">Hint execution</h3>
+
+The user agent must not delay the <code>load</code> event of the document unless the hint-initiated fetch is matched with a matching request that blocks the <code>load</code> event of the document.
+
+Once the the attempt to obtain the hint-initiated resource is complete, the user agent must, if the fetch was successful, queue a task to fire a simple event named <code>load</code> at the link element, or, if the fetch failed to complete for any reason, queue a task to fire a simple event named <code>error</code> at the link element.
+
+<ul>
+  <li>If the user agent is executing a required hint, then the <code>load</code> event on the link element is an indicator that the hint was processed to completion.
+  <li>If the user agent is executing a speculative hint, then the <code>load</code> event on the link element is an indicator that the user agent has performed full or partial processing on the hint (see <a section href="#required-vs-speculative-hints"></a>).
+</ul>
+
+<pre>
+&lt;script&gt;
+  function hintLoaded() { ... }
+  function hintError()  { ... }
+
+  var hint = document.createElement("link")
+  hint.setAttribute("rel", "preload")
+  hint.setAttribute("as", "image")
+  hint.setAttribute("href", "/image.jpeg")
+  document.getElementsByTagName("head")[0].appendChild(hint)
+
+  // listen for load/error events
+  hint.addEventListener("load", hintLoaded)
+  hint.addEventListener("error", hintError)
+&lt;/script&gt;
+
+&lt;!-- listen for load/error events --&gt;
+&lt;link rel="preload" href="app.js" as="script" onload="hintLoaded()" onerror="hintError()"&gt;
+</pre>
+
+<div class="note">
+Note: the decision on whether a speculative hint is executed, and if so, whether full or partial processing is applied is deferred to the user agent. As a result, the <code>load</code> and <code>error</code> events are not guaranteed to fire for a speculative hint, and when they do, do not guarantee that full processing was applied.
+</div>
+
+<div class="example">
+The application may use the <code>load</code> event on a <code>preload</code> hint as an indicator that the resource has been successfully fetched and is now ready to be processed by the application - e.g. the image is ready to be decoded, a stylesheet or script may be applied, and so on, without blocking on the network.
 </div>
 
 
