@@ -590,11 +590,12 @@ Parts of this work may be from another specification document.  If so, those par
 	<li><a href=#processing><span class=secno>3</span> Processing model</a>
 		<ul class=toc>
 		<li><a href=#fetch-settings><span class=secno>3.1</span> Fetch settings</a>
-		<li><a href=#required-vs-speculative-execution><span class=secno>3.2</span> Required vs. speculative execution</a>
-		<li><a href=#dynamic-scheduling><span class=secno>3.3</span> Dynamic scheduling</a>
-		<li><a href=#http-link><span class=secno>3.4</span> Interoperability with HTTP Link header</a>
-		<li><a href=#matching-request><span class=secno>3.5</span> Matching hint responses with requests</a>
-		<li><a href=#prioritization><span class=secno>3.6</span> Request prioritization</a></ul>
+		<li><a href=#required-vs-speculative-hints><span class=secno>3.2</span> Required vs. speculative hints</a>
+		<li><a href=#hint-execution><span class=secno>3.3</span> Hint execution</a>
+		<li><a href=#dynamic-scheduling><span class=secno>3.4</span> Dynamic scheduling</a>
+		<li><a href=#http-link><span class=secno>3.5</span> Interoperability with HTTP Link header</a>
+		<li><a href=#matching-request><span class=secno>3.6</span> Matching hint responses with requests</a>
+		<li><a href=#prioritization><span class=secno>3.7</span> Request prioritization</a></ul>
 	<li><a href=#conformance><span class=secno></span>  Conformance</a>
 	<li><a href=#references><span class=secno></span>  References</a>
 		<ul class=toc>
@@ -673,12 +674,13 @@ Many sites rely on redirects for analytics and to anonymize the referrer before 
 </pre>
 
 <ul>
-  <li>The user agent should fetch and retain the preloaded response, without executing or processing it, until it is matched with a matching request (see <a data-section="" href=#matching-request>§3.5 Matching hint responses with requests</a>).
-  <li>The user agent must not delay the <code>load</code> event of the document unless the preloaded resource is matched with a matching request that blocks the <code>load</code> event.
+  <li>The <code>as</code> attribute is used to indicate the resource destination context - see <a data-section="" href=#fetch-settings>§3.1 Fetch settings</a>.
+  <li>The user agent should fetch and retain the preloaded response, without executing or processing it, until it is matched with a matching request (see <a data-section="" href=#matching-request>§3.6 Matching hint responses with requests</a>).
+  <li>The preloaded response must not delay the <code>load</code> event of the document unless it is matched with a matching request, and the user agent must fire a simple event indicating the status of the fetch attempt (see <a data-section="" href=#hint-execution>§3.3 Hint execution</a>).
 </ul>
 
 <div class=note>
-Note: <code>as</code> attribute is used to indicate the resource destination context - see <a data-section="" href=#fetch-settings>§3.1 Fetch settings</a>. Also, resource hints are subject to regular <a href=http://www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#attr-link-media>media query processing rules</a>: the user agent must initiate resource fetch when media attribute’s value matches the environment, and must not initiate the fetch otherwise.
+Note: resource hints are subject to <a href=http://www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#attr-link-media>media query processing rules</a>: the user agent must initiate resource fetch when media attribute’s value matches the environment, and must not initiate the fetch otherwise.
 </div>
 
 <div class=example>
@@ -725,7 +727,7 @@ The <code>preload</code> hint can be generated both by the application and an op
 
 <p class=note>Note: <code>prerender</code> is not restricted to HTML and may be used to load and preprocess any content-type.</p>
 
-<p>The user agent may perform appropriate preprocessing depending on the type and destination context of the response - e.g. decode an image, parse the HTML markup, parse the HTML markup and initiate fetches for critical subresources, and so on. The decision for which preprocessing steps are performed is deferred to the user agent and is a function of runtime context and specified hint probability - see <a data-section="" href=#required-vs-speculative-execution>§3.2 Required vs. speculative execution</a>.</p>
+<p>The user agent may perform appropriate preprocessing depending on the type and destination context of the response - e.g. decode an image, parse the HTML markup, parse the HTML markup and initiate fetches for critical subresources, and so on. The decision for which preprocessing steps are performed is deferred to the user agent and is a function of runtime context and specified hint probability - see <a data-section="" href=#required-vs-speculative-hints>§3.2 Required vs. speculative hints</a>.</p>
 
 <p>Prerendering should not negatively impact the performance of the current navigation context. Due to the need to fetch and optionally preprocess the specified resource and its associated assets, prerendering may result in high contention for CPU, GPU, memory, and network resources. As a result, the user agent may implement various strategies to minimize resource contention based on type and context of fetched response, impose limits on the properties of the resource that is being prerendered, and so on:</p>
 
@@ -779,12 +781,12 @@ The <code>prerender</code> hint can be used to implement a prefetch strategy tha
 
 <ul>
   <li>The specified <code>as</code> value must be a valid <a href=http://fetch.spec.whatwg.org/#concept-request-context>request context</a> as defined in <a data-biblio-type=informative data-link-type=biblio href=#biblio-fetch title=biblio-FETCH>[FETCH]</a>.
-  <li>Request defaults set by the user agent via <code>as</code> must match the default settings set by the user agent when processing a resource with the same context - this is necessary to guarantee correct prioritization and request matching (see <a data-section="" href=#matching-request>§3.5 Matching hint responses with requests</a>).
+  <li>Request defaults set by the user agent via <code>as</code> must match the default settings set by the user agent when processing a resource with the same context - this is necessary to guarantee correct prioritization and request matching (see <a data-section="" href=#matching-request>§3.6 Matching hint responses with requests</a>).
   <li>If the <code>as</code> attribute is missing, the user agent should assign a default context.
 </ul>
 
 
-<h3 class="heading settled" data-level=3.2 id=required-vs-speculative-execution><span class=secno>3.2 </span><span class=content>Required vs. speculative execution</span><a class=self-link href=#required-vs-speculative-execution></a></h3>
+<h3 class="heading settled" data-level=3.2 id=required-vs-speculative-hints><span class=secno>3.2 </span><span class=content>Required vs. speculative hints</span><a class=self-link href=#required-vs-speculative-hints></a></h3>
 
 <p>In addition to specifying the hint type, its fetch parameters, and the resource URL, the developer can communicate the expected probability that the resource will be used in the current or next navigation context.</p>
 
@@ -817,7 +819,7 @@ The <code>prerender</code> hint can be used to implement a prefetch strategy tha
 </ul>
 
 <div class=example>
-To optimize the overall user experience the user agent should account for local context and specified probability of a speculative hint. For example, on a resource constrained device the user agent may decide to only execute high probability hints. Alternatively, it may decide to perform partial processing of the hint, such as downgrading <code>preload</code> to a <code>preconnect</code>, a <code>prerender</code> to <code>preload</code>, performing a partial <code>prerender</code>, and so on.
+To optimize the overall user experience the user agent should account for local context and specified probability of a speculative hint. For example, on a resource constrained device the user agent may decide to only execute high probability hints. Alternatively, it may decide to perform partial processing of the hint, such as downgrading <code>preload</code> to <code>preconnect</code>, <code>prerender</code> to <code>preload</code>, performing a partial <code>prerender</code>, and so on.
 
 <p>Performing a partial optimization allows the user agent to improve performance even if a full optimization cannot be performed. Conversely, on a device with sufficient resources, the user agent may execute all of the specified hints as far as possible.
 </div><p></p>
@@ -827,7 +829,46 @@ TBD: do we need a carve-out clause for "required prerender hint"? E.g. current b
 </div>
 
 
-<h3 class="heading settled" data-level=3.3 id=dynamic-scheduling><span class=secno>3.3 </span><span class=content>Dynamic scheduling</span><a class=self-link href=#dynamic-scheduling></a></h3>
+<h3 class="heading settled" data-level=3.3 id=hint-execution><span class=secno>3.3 </span><span class=content>Hint execution</span><a class=self-link href=#hint-execution></a></h3>
+
+<p>The user agent must not delay the <code>load</code> event of the document unless the hint-initiated fetch is matched with a matching request that blocks the <code>load</code> event of the document.</p>
+
+<p>Once the the attempt to obtain the hint-initiated resource is complete, the user agent must, if the fetch was successful, queue a task to fire a simple event named <code>load</code> at the link element, or, if the fetch failed to complete for any reason, queue a task to fire a simple event named <code>error</code> at the link element.</p>
+
+<ul>
+  <li>If the user agent is executing a required hint, then the <code>load</code> event on the link element is an indicator that the hint was processed to completion.
+  <li>If the user agent is executing a speculative hint, then the <code>load</code> event on the link element is an indicator that the user agent has performed full or partial processing on the hint (see <a data-section="" href=#required-vs-speculative-hints>§3.2 Required vs. speculative hints</a>).
+</ul>
+
+<pre>&lt;script&gt;
+  function hintLoaded() { ... }
+  function hintError()  { ... }
+
+  var hint = document.createElement("link")
+  hint.setAttribute("rel", "preload")
+  hint.setAttribute("as", "image")
+  hint.setAttribute("href", "/image.jpeg")
+  document.getElementsByTagName("head")[0].appendChild(hint)
+
+  // listen for load/error events
+  hint.addEventListener("load", hintLoaded)
+  hint.addEventListener("error", hintError)
+&lt;/script&gt;
+
+&lt;!-- listen for load/error events --&gt;
+&lt;link rel="preload" href="app.js" as="script" onload="hintLoaded()" onerror="hintError()"&gt;
+</pre>
+
+<div class=note>
+Note: the decision on whether a speculative hint is executed, and if so, whether full or partial processing is applied is deferred to the user agent. As a result, the <code>load</code> and <code>error</code> events are not guaranteed to fire for a speculative hint, and when they do, do not guarantee that full processing was applied.
+</div>
+
+<div class=example>
+The application may use the <code>load</code> event on a <code>preload</code> hint as an indicator that the resource has been successfully fetched and is now ready to be processed by the application - e.g. the image is ready to be decoded, a stylesheet or script may be applied, and so on, without blocking on the network.
+</div>
+
+
+<h3 class="heading settled" data-level=3.4 id=dynamic-scheduling><span class=secno>3.4 </span><span class=content>Dynamic scheduling</span><a class=self-link href=#dynamic-scheduling></a></h3>
 
 <p>In addition to the hints specified in the document markup, the application may have runtime resource hints based on user context or other signals. The user agent should process dynamically inserted resource hints in addition to and in the same way as document specified hints.</p>
 
@@ -843,7 +884,7 @@ document.getElementsByTagName("head")[0].removeChild(hint);
 <p>The removal of the hint from the document should cancel the optimization if it is being processed and prevent it from executing if it has not yet been invoked.</p>
 
 
-<h3 class="heading settled" data-level=3.4 id=http-link><span class=secno>3.4 </span><span class=content>Interoperability with HTTP Link header</span><a class=self-link href=#http-link></a></h3>
+<h3 class="heading settled" data-level=3.5 id=http-link><span class=secno>3.5 </span><span class=content>Interoperability with HTTP Link header</span><a class=self-link href=#http-link></a></h3>
 
 <p>The user agent should process resource hints specified via the <a href=http://tools.ietf.org/html/rfc5988><code>Link</code> HTTP header</a>.</p>
 
@@ -865,7 +906,7 @@ Delivering resource hints via <code>Link</code> header allows automated optimiza
 </div>
 
 
-<h3 class="heading settled" data-level=3.5 id=matching-request><span class=secno>3.5 </span><span class=content>Matching hint responses with requests</span><a class=self-link href=#matching-request></a></h3>
+<h3 class="heading settled" data-level=3.6 id=matching-request><span class=secno>3.6 </span><span class=content>Matching hint responses with requests</span><a class=self-link href=#matching-request></a></h3>
 
 <p>Resources fetched via <code>preload</code> and <code>prerender</code> are retained by the user agent until they are fetched with a matching request. The user agent may decide to discard the retained response due to resource constraints, a timeout (recommended, at least 300 seconds), or other reasons.</p>
 
@@ -876,7 +917,7 @@ A JavaScript resource is fetched via <code>preload</code> and the response conta
 <p class=note>Note: "matching" is not currently defined or interoperable across user agents. This should be fixed, but it is out of scope of this specification. For further discussion see <a href=https://github.com/igrigorik/resource-hints/issues/5>this bug</a> and <a href=https://groups.google.com/a/chromium.org/forum/#!msg/net-dev/cFhaIoJCRFg/3JX9lPWnDPIJ>chromium discussion</a>.</p>
 
 
-<h3 class="heading settled" data-level=3.6 id=prioritization><span class=secno>3.6 </span><span class=content>Request prioritization</span><a class=self-link href=#prioritization></a></h3>
+<h3 class="heading settled" data-level=3.7 id=prioritization><span class=secno>3.7 </span><span class=content>Request prioritization</span><a class=self-link href=#prioritization></a></h3>
 
 <p>Resources fetched via <code>preload</code> and <code>prerender</code> have a priority value that is determined via the specified destination context and relative priority of the resource hint - i.e. <code>preload</code> initiated requests have higher priority than <code>prerender</code> requests with the same context. In the case where the same resource has mixed prioritization hints, the user agent should resolve the conflict:</p>
 
