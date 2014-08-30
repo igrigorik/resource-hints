@@ -78,10 +78,10 @@ Note that this behavior requires ability to dynamically inject a preconnect hint
 The <code>preload</code> hint is used to indicate the URL of a resource that should be fetched as early as possible by the user agent. Initiating an early fetch allows the user agent to mask the request latency of the resource and make it available sooner to the application.
 
 <pre>
-  &lt;link rel="preload" href="/assets/font.woff" fetch-settings="{destinationContext: 'font'}"&gt;
-  &lt;link rel="preload" href="/assets/logo.webp" fetch-settings="{destinationContext: 'image'}"&gt;
-  &lt;link rel="preload" href="//example.com/app.js" fetch-settings="{destinationContext: 'script'}"&gt;
-  &lt;link rel="preload" href="//example.com/mobile-ui-framework.js" media="screen and (max-width: 640px)" fetch-settings="{destinationContext: 'script'}"&gt;
+  &lt;link rel="preload" href="/assets/font.woff" as="font"&gt;
+  &lt;link rel="preload" href="/assets/logo.webp" as="image"&gt;
+  &lt;link rel="preload" href="//example.com/app.js" as="script"&gt;
+  &lt;link rel="preload" href="//example.com/mobile-ui-framework.js" as="script" media="screen and (max-width: 640px)"&gt;
 </pre>
 
 <ul>
@@ -90,9 +90,7 @@ The <code>preload</code> hint is used to indicate the URL of a resource that sho
 </ul>
 
 <div class="note">
-Note: <code>fetch-settings</code> attribute is used to indicate Fetch request options - see <a section href="#fetch-settings"></a>.
-
-Also, resource hints are subject to regular <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#attr-link-media">media query processing rules</a>: the user agent must initiate resource fetch when media attribute's value matches the environment, and must not initiate the fetch otherwise.
+Note: <code>as</code> attribute is used to indicate the resource destination context - see <a section href="#fetch-settings"></a>. Also, resource hints are subject to regular <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#attr-link-media">media query processing rules</a>: the user agent must initiate resource fetch when media attribute's value matches the environment, and must not initiate the fetch otherwise.
 </div>
 
 <div class="example">
@@ -134,8 +132,8 @@ The <code>prerender</code> hint is used to indicate the URL and the context of a
 
 <pre>
   &lt;link rel="prerender" href="//example.com/thankyou.html"&gt;
-  &lt;link rel="prerender" href="//example.com/application.js" fetch-settings="{destinationContext: 'script'}"&gt;
-  &lt;link rel="prerender" href="//example.com/image.webp" media="(max-width: 640px)" fetch-settings="{destinationContext: 'image'}"&gt;
+  &lt;link rel="prerender" href="//example.com/application.js" as="script"&gt;
+  &lt;link rel="prerender" href="//example.com/image.webp" as="image" media="max-width: 640px"&gt;
 </pre>
 
 Note: <code>prerender</code> is not restricted to HTML and may be used to load and preprocess any content-type.
@@ -185,22 +183,20 @@ Alternatively, instead of anticipating user activity, the application can react 
 <h2 id="processing">Processing model</h2>
 <h3 id="fetch-settings">Fetch settings</h3>
 
-The <code>fetch-settings</code> attribute contains a JSON string with request initialization options to [[FETCH]]. The <code>destinationContext</code> option allows the developer to communicate the response <a href="http://fetch.spec.whatwg.org/#concept-request-context">destination context</a>, such that the user agent can initialize the approriate fetch defaults: HTTP headers, request priority, and so on.
+Specifying the <code>as</code> attribute allows the developer to communicate the resource destination context, such that the user agent can initialize the appropriate fetch settings: HTTP headers, request priority, and so on.
 
 <pre>
-  &lt;link rel="preload" href="/assets/font.woff" fetch-settings="{destinationContext: 'font'}"&gt;
-  &lt;link rel="preload" href="/assets/logo.webp" fetch-settings="{destinationContext: 'image'}"&gt;
-  &lt;link rel="preload" href="//example.com/widget"
+  &lt;link rel="preload" href="/assets/font.woff" as="font"&gt;
+  &lt;link rel="preload" href="/assets/logo.webp" as="image"&gt;
+  &lt;link rel="preload" href="//example.com/widget"&gt;
 </pre>
 
 <ul>
-  <li>Fetch defaults initialized by the user agent via <code>destinationContext</code> must match the default settings set by the user agent when processing a resource with the same context - this is necessary to guarantee correct prioritization and request matching (see <a section href="#matching-request"></a>).
-  <li>If the <code>destinationContext</code> option is missing, the user agent should assign a default context.
+  <li>The specified <code>as</code> value must be a valid <a href="http://fetch.spec.whatwg.org/#concept-request-context">request context</a> as defined in [[FETCH]].
+  <li>Request defaults set by the user agent via <code>as</code> must match the default settings set by the user agent when processing a resource with the same context - this is necessary to guarantee correct prioritization and request matching (see <a section href="#matching-request"></a>).
+  <li>If the <code>as</code> attribute is missing, the user agent should assign a default context.
 </ul>
 
-<div class="note">
-Note: fetch <code>sourceContext</code> should match the hint type - i.e. <code>preload</code>, <code>prerender</code>. The <code>preconnect</code> hint does not initiate a resource fetch and hence does not have a source or destination context.
-</div>
 
 <h3 id="required-vs-speculative-execution">Required vs. speculative execution</h3>
 
@@ -270,9 +266,9 @@ The user agent should process resource hints specified via the <a href="http://t
 
 <pre>
   Link: &lt;https://example.com&gt;; rel=preconnect
-  Link: &lt;https://example.com/font.woff&gt;; rel=preload; context={destinationContext:'font'}
+  Link: &lt;https://example.com/font.woff&gt;; rel=preload; as=font
   Link: &lt;https://example.com/article/part2.html&gt;; rel=prerender
-  Link: &lt;https://example.com/logo-hires.jpg&gt;; rel=prerender; context={destinationContext:'image'}; media=min-resolution:2dppx
+  Link: &lt;https://example.com/logo-hires.jpg&gt;; rel=prerender; as=image; media=min-resolution:2dppx
 </pre>
 
 The application may provide one or more of the same type of hint via multiple HTTP headers or via a comma separated list. The user agent should process such hints in addition to and in the same way as document specified and dynamically scheduled resource hints.
@@ -300,7 +296,7 @@ Note: "matching" is not currently defined or interoperable across user agents. T
 
 <h3 id="prioritization">Request prioritization</h3>
 
-Resources fetched via <code>preload</code> and <code>prerender</code> have a priority value that is determined via the specified destination request context and relative priority of the resource hint - i.e. <code>preload</code> initiated requests have higher priority than <code>prerender</code> requests with the same context. In the case where the same resource has mixed prioritization hints, the user agent should resolve the conflict:
+Resources fetched via <code>preload</code> and <code>prerender</code> have a priority value that is determined via the specified destination context and relative priority of the resource hint - i.e. <code>preload</code> initiated requests have higher priority than <code>prerender</code> requests with the same context. In the case where the same resource has mixed prioritization hints, the user agent should resolve the conflict:
 
 <ul>
   <li>If the request has not yet been dispatched, the user agent should use the highest specified priority.
