@@ -594,8 +594,7 @@ Parts of this work may be from another specification document.  If so, those par
 		<li><a href=#hint-execution><span class=secno>3.3</span> Hint execution</a>
 		<li><a href=#dynamic-scheduling><span class=secno>3.4</span> Dynamic scheduling</a>
 		<li><a href=#http-link><span class=secno>3.5</span> Interoperability with HTTP Link header</a>
-		<li><a href=#matching-request><span class=secno>3.6</span> Matching hint responses with requests</a>
-		<li><a href=#prioritization><span class=secno>3.7</span> Request prioritization</a></ul>
+		<li><a href=#matching-request><span class=secno>3.6</span> Matching hint responses with requests</a></ul>
 	<li><a href=#conformance><span class=secno></span>  Conformance</a>
 	<li><a href=#references><span class=secno></span>  References</a>
 		<ul class=toc>
@@ -781,9 +780,20 @@ The <code>prerender</code> hint can be used to implement a prefetch strategy tha
 
 <ul>
   <li>The specified <code>as</code> value must be a valid <a href=http://fetch.spec.whatwg.org/#concept-request-context>request context</a> as defined in <a data-biblio-type=informative data-link-type=biblio href=#biblio-fetch title=biblio-FETCH>[FETCH]</a>.
-  <li>Request defaults set by the user agent via <code>as</code> must match the default settings set by the user agent when processing a resource with the same context - this is necessary to guarantee correct prioritization and request matching (see <a data-section="" href=#matching-request>§3.6 Matching hint responses with requests</a>).
   <li>If the <code>as</code> attribute is missing, the user agent should assign a default context.
+  <li>Request defaults set by the user agent via <code>as</code> attribute must match the default settings set by the user agent when processing a resource with the same context - this is necessary to guarantee correct prioritization and request matching (see <a data-section="" href=#matching-request>§3.6 Matching hint responses with requests</a>).
 </ul>
+
+<p>In addition to the fetch settings set by the resource destination context, the user agent must account for the relative hint priority: <code>preload</code> requests must have higher priority than <code>prerender</code> requests with the same context. In the case where the same resource has mixed prioritization hints, the user agent should resolve the conflict:</p>
+
+<ul>
+  <li>If the request has not yet been dispatched, the user agent should use the highest specified priority.
+  <li>If the request has been dispatched, and if negotiated protocol supports it, the user agent should update request priority to the highest specified priority.
+</ul>
+
+<div class=note>
+Note: the resource destination context communicated via the <code>as</code> attribute is used to initialize appropriate fetch settings; the communicated context should not be used to enforce security or other resource policies.
+</div>
 
 
 <h3 class="heading settled" data-level=3.2 id=required-vs-speculative-hints><span class=secno>3.2 </span><span class=content>Required vs. speculative hints</span><a class=self-link href=#required-vs-speculative-hints></a></h3>
@@ -883,6 +893,10 @@ document.getElementsByTagName("head")[0].removeChild(hint);
 
 <p>The removal of the hint from the document should cancel the optimization if it is being processed and prevent it from executing if it has not yet been invoked.</p>
 
+<div class=example>
+The application may use dynamic scheduling to react and adapt to user initiated actions - e.g. initiate a speculative resource fetch in response to recent user activity, cancel previous speculative fetch, and so on.
+</div>
+
 
 <h3 class="heading settled" data-level=3.5 id=http-link><span class=secno>3.5 </span><span class=content>Interoperability with HTTP Link header</span><a class=self-link href=#http-link></a></h3>
 
@@ -915,16 +929,6 @@ A JavaScript resource is fetched via <code>preload</code> and the response conta
 </div>
 
 <p class=note>Note: "matching" is not currently defined or interoperable across user agents. This should be fixed, but it is out of scope of this specification. For further discussion see <a href=https://github.com/igrigorik/resource-hints/issues/5>this bug</a> and <a href=https://groups.google.com/a/chromium.org/forum/#!msg/net-dev/cFhaIoJCRFg/3JX9lPWnDPIJ>chromium discussion</a>.</p>
-
-
-<h3 class="heading settled" data-level=3.7 id=prioritization><span class=secno>3.7 </span><span class=content>Request prioritization</span><a class=self-link href=#prioritization></a></h3>
-
-<p>Resources fetched via <code>preload</code> and <code>prerender</code> have a priority value that is determined via the specified destination context and relative priority of the resource hint - i.e. <code>preload</code> initiated requests have higher priority than <code>prerender</code> requests with the same context. In the case where the same resource has mixed prioritization hints, the user agent should resolve the conflict:</p>
-
-<ul>
-  <li>If the request has not yet been dispatched, the user agent should use the highest specified priority.
-  <li>If the request has been dispatched, and if negotiated protocol supports it, the user agent should update request priority to the highest specified priority.
-</ul>
 
 <h2 class="no-ref no-num heading settled" id=conformance><span class=content>
 Conformance</span><a class=self-link href=#conformance></a></h2>
