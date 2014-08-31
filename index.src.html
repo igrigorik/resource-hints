@@ -205,6 +205,10 @@ In addition to the fetch settings set by the resource destination context, the u
   <li>If the request has been dispatched, and if negotiated protocol supports it, the user agent should update request priority to the highest specified priority.
 </ul>
 
+<div class="note">
+Note: the resource destination context communicated via the <code>as</code> attribute is used to initialize appropriate fetch settings; the communicated context should not be used to enforce security or other resource policies.
+</div>
+
 
 <h3 id="required-vs-speculative-hints">Required vs. speculative hints</h3>
 
