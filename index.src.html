@@ -266,8 +266,8 @@ Once the the attempt to obtain the hint-initiated resource is complete, the user
   document.getElementsByTagName("head")[0].appendChild(hint)
 
   // listen for load/error events
-  hint.addEventListener("load", hintLoaded)
-  hint.addEventListener("error", hintError)
+  hint.addEventListener("load", function() { hintLoaded() })
+  hint.addEventListener("error", function() { hintError() })
 &lt;/script&gt;
 
 &lt;!-- listen for load/error events --&gt;
