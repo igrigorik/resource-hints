@@ -194,8 +194,15 @@ Specifying the <code>as</code> attribute allows the developer to communicate the
 
 <ul>
   <li>The specified <code>as</code> value must be a valid <a href="http://fetch.spec.whatwg.org/#concept-request-context">request context</a> as defined in [[FETCH]].
-  <li>Request defaults set by the user agent via <code>as</code> must match the default settings set by the user agent when processing a resource with the same context - this is necessary to guarantee correct prioritization and request matching (see <a section href="#matching-request"></a>).
   <li>If the <code>as</code> attribute is missing, the user agent should assign a default context.
+  <li>Request defaults set by the user agent via <code>as</code> attribute must match the default settings set by the user agent when processing a resource with the same context - this is necessary to guarantee correct prioritization and request matching (see <a section href="#matching-request"></a>).
+</ul>
+
+In addition to the fetch settings set by the resource destination context, the user agent must account for the relative hint priority: <code>preload</code> requests must have higher priority than <code>prerender</code> requests with the same context. In the case where the same resource has mixed prioritization hints, the user agent should resolve the conflict:
+
+<ul>
+  <li>If the request has not yet been dispatched, the user agent should use the highest specified priority.
+  <li>If the request has been dispatched, and if negotiated protocol supports it, the user agent should update request priority to the highest specified priority.
 </ul>
 
 
@@ -333,13 +340,3 @@ A JavaScript resource is fetched via <code>preload</code> and the response conta
 </div>
 
 Note: "matching" is not currently defined or interoperable across user agents. This should be fixed, but it is out of scope of this specification. For further discussion see <a href="https://github.com/igrigorik/resource-hints/issues/5">this bug</a> and <a href="https://groups.google.com/a/chromium.org/forum/#!msg/net-dev/cFhaIoJCRFg/3JX9lPWnDPIJ">chromium discussion</a>.
-
-
-<h3 id="prioritization">Request prioritization</h3>
-
-Resources fetched via <code>preload</code> and <code>prerender</code> have a priority value that is determined via the specified destination context and relative priority of the resource hint - i.e. <code>preload</code> initiated requests have higher priority than <code>prerender</code> requests with the same context. In the case where the same resource has mixed prioritization hints, the user agent should resolve the conflict:
-
-<ul>
-  <li>If the request has not yet been dispatched, the user agent should use the highest specified priority.
-  <li>If the request has been dispatched, and if negotiated protocol supports it, the user agent should update request priority to the highest specified priority.
-</ul>
